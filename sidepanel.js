@@ -1712,7 +1712,7 @@ function updateSearchEngine() {
 
 function handleSearchSubmit(event) {
   event.preventDefault();
-  openSearchResult(state.splitView ? state.appearance.searchSplitSide : null);
+  openSearchResult(state.splitView?.pairIsActive ? state.appearance.searchSplitSide : null);
 }
 
 async function selectSearchSplitSide(side) {
@@ -1734,7 +1734,7 @@ async function openSearchResult(side = null) {
   if (!query) { $("#searchQuery").focus(); return showToast("検索キーワードを入力してください"); }
   const url = buildSearchUrl(query);
   let tabId = null;
-  if (state.splitView && side) tabId = side === "left" ? state.splitView.leftTabId : state.splitView.rightTabId;
+  if (state.splitView?.pairIsActive && side) tabId = side === "left" ? state.splitView.leftTabId : state.splitView.rightTabId;
   if (!tabId) {
     const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
     tabId = activeTab?.id;
@@ -1742,7 +1742,7 @@ async function openSearchResult(side = null) {
   if (!tabId) return showToast("検索結果を開けませんでした");
   try {
     await chrome.tabs.update(tabId, { url });
-    showToast(state.splitView && side ? `${side === "left" ? "左" : "右"}側で検索しました` : "現在のタブで検索しました");
+    showToast(state.splitView?.pairIsActive && side ? `${side === "left" ? "左" : "右"}側で検索しました` : "現在のタブで検索しました");
     await refreshCurrentUrl();
   } catch { showToast("検索結果を開けませんでした"); }
 }
@@ -2759,10 +2759,10 @@ async function refreshCurrentUrl(shouldRender = true) {
 function updateSplitViewStatus() {
   const panel = $("#splitViewStatus");
   const visible = Boolean(state.splitView);
-  panel.hidden = false;
+  panel.hidden = !state.splitView?.pairIsActive;
   panel.classList.toggle("is-split", visible);
   panel.classList.toggle("is-background-split", Boolean(visible && !state.splitView.pairIsActive));
-  document.body.classList.toggle("split-view-active", Boolean(state.splitView));
+  document.body.classList.toggle("split-view-active", Boolean(state.splitView?.pairIsActive));
   if (!visible) {
     $("#splitLeftTitle").textContent = "現在のタブ";
     $("#splitRightTitle").textContent = "分割なし";
