@@ -370,7 +370,24 @@ function renderOpenTabs() {
   const tabs = state.openTabs.filter((tab) => !query || `${tab.title || ""} ${tab.url || ""}`.toLocaleLowerCase("ja").includes(query));
   $("#emptyTabSearch").hidden = tabs.length > 0;
   const container = $("#openTabList");
-  container.replaceChildren(...tabs.map(createOpenTabItem));
+  const splitIds = state.splitView ? new Set([state.splitView.leftTabId, state.splitView.rightTabId]) : new Set();
+  const visibleSplitTabs = tabs.filter((tab) => splitIds.has(tab.id));
+  const rendered = [];
+  let splitGroupAdded = false;
+  for (const tab of tabs) {
+    if (splitIds.has(tab.id) && visibleSplitTabs.length === 2) {
+      if (splitGroupAdded) continue;
+      splitGroupAdded = true;
+      const group = document.createElement("section");
+      group.className = "open-tab-split-group";
+      group.setAttribute("aria-label", "分割表示中のタブ");
+      const left = visibleSplitTabs.find((item) => item.id === state.splitView.leftTabId);
+      const right = visibleSplitTabs.find((item) => item.id === state.splitView.rightTabId);
+      group.append(createOpenTabItem(left), createOpenTabItem(right));
+      rendered.push(group);
+    } else rendered.push(createOpenTabItem(tab));
+  }
+  container.replaceChildren(...rendered);
 }
 
 function createOpenTabItem(tab) {
