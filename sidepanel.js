@@ -100,6 +100,8 @@ let editingIconPreset = "";
 let draggedBackgroundPresetId = null;
 let tabShelfOpen = false;
 let tabRefreshTimer = 0;
+let draggedChromeTabId = null;
+let chromeTabWasDragged = false;
 
 function normalizeBookmark(item) {
   if (!item || item.id === undefined || item.id === null || !item.title || !item.url) return null;
@@ -371,6 +373,34 @@ function createOpenTabItem(tab) {
   const row = document.createElement("article");
   row.className = `open-tab-item${tab.active ? " active" : ""}${tab.pinned ? " pinned" : ""}`;
   row.dataset.tabId = String(tab.id);
+  row.draggable = true;
+  row.addEventListener("dragstart", (event) => {
+    draggedChromeTabId = tab.id;
+    chromeTabWasDragged = true;
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", `sidemarks-tab:${tab.id}`);
+    row.classList.add("dragging");
+    document.body.classList.add("chrome-tab-dragging");
+  });
+  row.addEventListener("dragover", (event) => {
+    if (!Number.isInteger(draggedChromeTabId) || draggedChromeTabId === tab.id) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    const after = event.clientY >= row.getBoundingClientRect().top + row.offsetHeight / 2;
+    row.classList.toggle("drop-before", !after);
+    row.classList.toggle("drop-after", after);
+  });
+  row.addEventListener("dragleave", () => row.classList.remove("drop-before", "drop-after"));
+  row.addEventListener("drop", async (event) => {
+    event.preventDefault();
+    const after = event.clientY >= row.getBoundingClientRect().top + row.offsetHeight / 2;
+    await moveChromeTab(draggedChromeTabId, tab, after);
+    clearChromeTabDragState();
+  });
+  row.addEventListener("dragend", () => {
+    clearChromeTabDragState();
+    setTimeout(() => { chromeTabWasDragged = false; }, 0);
+  });
 
   const open = document.createElement("button");
   open.type = "button";
@@ -395,6 +425,7 @@ function createOpenTabItem(tab) {
   audio.textContent = tab.mutedInfo?.muted ? "🔇" : tab.audible ? "♪" : "";
   open.append(favicon, text, audio);
   open.addEventListener("click", async () => {
+    if (chromeTabWasDragged) return;
     try { await chrome.tabs.update(tab.id, { active: true }); }
     catch { showToast("タブを選択できませんでした"); }
   });
@@ -409,6 +440,30 @@ function createOpenTabItem(tab) {
   );
   row.append(open, actions);
   return row;
+}
+
+async function moveChromeTab(sourceTabId, targetTab, after) {
+  const sourceTab = state.openTabs.find((tab) => tab.id === sourceTabId);
+  if (!sourceTab || !targetTab || sourceTab.id === targetTab.id) return;
+  if (Boolean(sourceTab.pinned) !== Boolean(targetTab.pinned)) {
+    showToast("固定タブと通常タブは別々に並べ替えてください");
+    return;
+  }
+  let targetIndex = targetTab.index + (after ? 1 : 0);
+  if (sourceTab.index < targetIndex) targetIndex -= 1;
+  if (targetIndex === sourceTab.index) return;
+  try {
+    await chrome.tabs.move(sourceTab.id, { index: targetIndex });
+    await refreshOpenTabs();
+  } catch {
+    showToast("タブの順番を変更できませんでした");
+  }
+}
+
+function clearChromeTabDragState() {
+  draggedChromeTabId = null;
+  document.body.classList.remove("chrome-tab-dragging");
+  document.querySelectorAll(".open-tab-item.dragging, .open-tab-item.drop-before, .open-tab-item.drop-after").forEach((item) => item.classList.remove("dragging", "drop-before", "drop-after"));
 }
 
 function createTabAction(label, text, action, extraClass = "") {
