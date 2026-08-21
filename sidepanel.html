@@ -62,7 +62,6 @@
 
     <section id="splitViewStatus" class="split-view-status" aria-label="Chrome分割表示">
       <button id="splitLeftTab" class="split-view-tab" type="button"><small><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M12 4v16"/><path class="split-side-fill" d="M4 7a2 2 0 0 1 2-2h5v14H6a2 2 0 0 1-2-2z"/></svg>左側</small><span id="splitLeftTitle"></span></button>
-      <span class="split-view-state"><small>分割表示</small><strong id="splitViewState">OFF</strong></span>
       <button id="splitRightTab" class="split-view-tab" type="button"><small><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M12 4v16"/><path class="split-side-fill" d="M13 5h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5z"/></svg>右側</small><span id="splitRightTitle"></span></button>
     </section>
     <section id="normalEventPanel" class="normal-event-panel" hidden>
@@ -323,7 +322,7 @@
         <section class="settings-group">
           <h3>操作ボタン</h3>
           <label class="toggle-label"><span>ブックマークに削除ボタンを表示</span><input id="showDeleteButton" type="checkbox" checked></label>
-          <label class="toggle-label"><span>タブ欄に分割表示マークを表示</span><input id="showSplitViewControls" type="checkbox" checked></label>
+          <label class="toggle-label"><span>分割表示の左右選択とタブマークを表示</span><input id="showSplitViewControls" type="checkbox" checked></label>
           <label>ブックマーク操作の表示位置
             <select id="actionMenuPosition">
               <option value="top">右上</option>
