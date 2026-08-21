@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SideMarks</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div id="customBackground" class="custom-background" aria-hidden="true"><img class="background-layer active" alt=""><img class="background-layer" alt=""></div>
+    <div id="backgroundClock" class="background-clock" aria-live="off">
+      <time id="backgroundClockTime"></time>
+      <span id="backgroundClockDate"></span>
+    </div>
+    <i id="clockGuideX" class="clock-position-guide clock-position-guide-x" aria-hidden="true"></i>
+    <i id="clockGuideY" class="clock-position-guide clock-position-guide-y" aria-hidden="true"></i>
+    <header>
+      <div class="brand-row">
+        <div class="header-leading-actions">
+          <button id="backgroundOnlyButton" class="icon-button" type="button" title="背景だけを表示" aria-label="背景だけを表示" aria-pressed="false">◫</button>
+          <button id="undoButton" class="icon-button undo-button" type="button" title="元に戻せる操作はありません" aria-label="直前の操作を元に戻す" disabled>↶</button>
+        </div>
+        <div class="header-actions">
+          <button id="backgroundButton" class="icon-button" type="button" title="背景画像を設定" aria-label="背景画像を設定">▧</button>
+          <button id="themeButton" class="icon-button" type="button" title="テーマを切り替え" aria-label="テーマを切り替え">☾</button>
+          <button id="tutorialButton" class="icon-button tutorial-button" type="button" title="使い方を見る" aria-label="SideMarksの使い方を見る">?</button>
+          <button id="settingsButton" class="icon-button" type="button" title="SideMarksの設定" aria-label="SideMarksの設定">⚙</button>
+        </div>
+      </div>
+      <button id="addCurrentButton" class="primary-button" type="button">
+        <span>＋</span> 現在のページを追加
+      </button>
+      <form id="searchForm" class="quick-search" role="search">
+        <div class="search-engine-toggle search-segmented" aria-label="検索先">
+          <button id="searchWebButton" type="button" title="Webで検索" aria-label="Webで検索" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 4 6 4 9s-1 6-4 9c-3-3-4-6-4-9s1-6 4-9"/></svg></button>
+          <button id="searchYouTubeButton" type="button" title="YouTubeで検索" aria-label="YouTubeで検索" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="4"/><path d="m10 9 5 3-5 3z"/></svg></button>
+        </div>
+        <div class="search-split-targets search-segmented" aria-label="検索結果を開く側">
+          <button id="searchLeftButton" type="button" title="検索結果を左側で開く" aria-label="検索結果を左側で開く" aria-pressed="true">左</button>
+          <button id="searchRightButton" type="button" title="検索結果を右側で開く" aria-label="検索結果を右側で開く" aria-pressed="false">右</button>
+        </div>
+        <input id="searchQuery" type="search" placeholder="キーワードを検索" autocomplete="off" aria-label="検索キーワード">
+        <button id="searchCurrentButton" class="search-current" type="submit">検索</button>
+      </form>
+    </header>
+
+    <section id="splitViewStatus" class="split-view-status" aria-label="Chrome分割表示" hidden>
+      <button id="splitLeftTab" class="split-view-tab" type="button"><small>左側</small><span id="splitLeftTitle"></span></button>
+      <i aria-hidden="true">⇄</i>
+      <button id="splitRightTab" class="split-view-tab" type="button"><small>右側</small><span id="splitRightTitle"></span></button>
+    </section>
+    <section id="normalEventPanel" class="normal-event-panel" hidden>
+      <button id="normalEventSummary" class="normal-event-summary" type="button" aria-expanded="false">
+        <span><strong id="normalEventTitle"></strong><b id="normalEventCountdown"></b></span>
+        <small id="normalEventNextDate"></small>
+        <i aria-hidden="true">⌄</i>
+      </button>
+      <div id="normalEventDetails" class="normal-event-details" hidden></div>
+    </section>
+    <div id="filterScrollShell" class="filter-scroll-shell">
+      <button id="filterScrollLeft" class="filter-scroll-arrow" type="button" aria-label="前のジャンルを表示">‹</button>
+      <nav id="filterBar" class="filter-bar" aria-label="表示フィルター">
+        <button class="filter active" data-filter="all" type="button">すべて <span id="allCount">0</span></button>
+        <button class="filter" data-filter="favorite" type="button">★ お気に入り</button>
+      </nav>
+      <button id="filterScrollRight" class="filter-scroll-arrow" type="button" aria-label="次のジャンルを表示">›</button>
+    </div>
+    <main>
+      <div class="section-heading">
+        <div class="list-heading-group">
+          <h2 id="listHeading">すべてのブックマーク</h2>
+          <div id="iconGridControls" class="icon-grid-controls" hidden>
+            <button id="decreaseIconColumns" type="button" title="1行の表示数を減らす" aria-label="1行の表示数を減らす">−</button>
+            <button id="increaseIconColumns" type="button" title="1行の表示数を増やす" aria-label="1行の表示数を増やす">＋</button>
+          </div>
+          <button id="toggleAllFoldersButton" class="text-button folder-toggle-button" type="button" aria-label="表示中のフォルダを折りたたむ" title="表示中のフォルダを折りたたむ" hidden>▾</button>
+        </div>
+        <div class="section-actions">
+          <button id="suggestionsButton" class="text-button" type="button">おすすめ</button>
+          <button id="bulkModeButton" class="text-button" type="button">複数選択</button>
+          <button id="moreButton" class="text-button" type="button">データ管理</button>
+        </div>
+      </div>
+      <div id="bulkToolbar" class="bulk-toolbar" hidden>
+        <button id="selectVisibleButton" class="text-button" type="button">表示中をすべて選択</button>
+        <strong id="bulkSelectionCount">0件選択</strong>
+        <span class="action-spacer"></span>
+        <button id="openBulkEditButton" class="primary-button compact" type="button" disabled>一括編集</button>
+        <button id="closeBulkModeButton" class="text-button" type="button">終了</button>
+      </div>
+      <div id="bookmarkList" class="bookmark-list"></div>
+      <section id="emptyState" class="empty-state" hidden>
+        <div class="empty-icon">↗</div>
+        <h2>ページを集めましょう</h2>
+        <p>今見ているページを追加すると、ここからすぐに開けます。</p>
+        <button id="emptyAddButton" class="secondary-button" type="button">最初のページを追加</button>
+      </section>
+    </main>
+
+    <dialog id="editDialog">
+      <form id="editForm" method="dialog">
+        <div class="dialog-heading">
+          <h2 id="dialogTitle">ブックマークを編集</h2>
+          <button class="icon-button" value="cancel" type="submit" aria-label="閉じる">×</button>
+        </div>
+        <input id="editingId" type="hidden">
+        <label>タイトル<input id="titleInput" required maxlength="160"></label>
+        <label>URL<input id="urlInput" required type="url"></label>
+        <div class="custom-icon-editor">
+          <span>アイコン</span>
+          <label class="icon-category-row">種類
+            <select id="iconCategorySelect">
+              <option value="general">汎用</option>
+              <option value="communication">連絡・SNS</option>
+              <option value="media">動画・音楽・ゲーム</option>
+              <option value="work">仕事・ツール</option>
+              <option value="lifestyle">生活・買い物</option>
+              <option value="granblue">グラブル</option>
+            </select>
+          </label>
+          <div id="builtinIconPicker" class="builtin-icon-picker" aria-label="標準アイコン"></div>
+          <div class="custom-icon-row">
+            <div id="customIconPreview" class="custom-icon-preview" aria-label="選択中のアイコン"></div>
+            <label class="secondary-button file-button">画像を選択<input id="customIconInput" type="file" accept="image/*"></label>
+            <button id="removeCustomIconButton" class="text-button" type="button">標準に戻す</button>
+          </div>
+          <small>標準アイコンを選ぶか、好きな画像を使用できます。画像は正方形に収まるよう縮小して、この端末内へ保存されます。</small>
+        </div>
+        <label>ジャンル
+          <select id="genreSelect"></select>
+        </label>
+        <label>フォルダ
+          <select id="folderSelect"></select>
+        </label>
+        <div class="dialog-actions">
+          <button id="deleteButton" class="text-button danger-button" value="delete" type="submit">削除</button>
+          <span class="action-spacer"></span>
+          <button class="text-button" value="cancel" type="submit">キャンセル</button>
+          <button id="saveButton" class="primary-button compact" value="default" type="submit">保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="bulkEditDialog">
+      <div class="dialog-heading"><h2>選択項目を一括編集</h2><button id="closeBulkEditButton" class="icon-button" type="button">×</button></div>
+      <p id="bulkEditCount" class="dialog-note"></p>
+      <label>フォルダ
+        <select id="bulkFolderSelect"></select>
+      </label>
+      <label>ジャンル
+        <select id="bulkGenreSelect"></select>
+      </label>
+      <label>お気に入り
+        <select id="bulkFavoriteSelect">
+          <option value="keep">変更しない</option>
+          <option value="add">お気に入りにする</option>
+          <option value="remove">お気に入りから外す</option>
+        </select>
+      </label>
+      <div class="dialog-actions">
+        <button id="bulkDeleteButton" class="text-button danger-button" type="button">まとめて削除</button>
+        <span class="action-spacer"></span>
+        <button id="saveBulkEditButton" class="primary-button compact" type="button">変更を適用</button>
+      </div>
+    </dialog>
+
+    <dialog id="dataDialog">
+      <div class="dialog-heading"><h2>データ管理</h2><button id="closeDataButton" class="icon-button" type="button">×</button></div>
+      <p class="dialog-note">ブックマークはこのブラウザ内に保存されます。</p>
+      <div class="data-transfer-groups">
+        <section class="data-transfer-group">
+          <h3>書き出し</h3>
+          <p>保存したい範囲を選んでJSONファイルを作成します。</p>
+          <div class="data-actions">
+            <div class="backup-choice">
+              <button id="exportButton" class="secondary-button" type="button">画像を除いて書き出す</button>
+              <p class="backup-kind-note"><strong>画像を除く：</strong>ブックマークや設定を小さなファイルで保存します。背景画像だけは含まれません。</p>
+            </div>
+            <div class="backup-choice">
+              <button id="exportCompleteButton" class="secondary-button" type="button">完全バックアップ</button>
+              <p class="backup-warning"><strong>完全バックアップについて</strong>背景画像と背景プリセット画像も保存します。ファイルが大きくなり、登録URLや個人的な画像も含まれるため、共有時は内容に注意してください。</p>
+            </div>
+          </div>
+          <fieldset class="selective-backup-options">
+            <legend>項目を選んで書き出す</legend>
+            <label><span>ブックマークと分類</span><input id="backupBookmarks" type="checkbox" checked></label>
+            <label><span>表示・操作設定</span><input id="backupAppearance" type="checkbox" checked></label>
+            <label><span>背景画像とプリセット</span><input id="backupBackgrounds" type="checkbox"></label>
+            <label><span>古戦場日程</span><input id="backupSchedule" type="checkbox"></label>
+            <button id="exportSelectedButton" class="secondary-button" type="button">選択した項目を書き出す</button>
+          </fieldset>
+        </section>
+        <section class="data-transfer-group import-group">
+          <h3>読み込み</h3>
+          <p>バックアップに含まれる項目を現在のデータへ復元します。</p>
+          <label class="secondary-button file-button">バックアップファイルを選ぶ<input id="importInput" type="file" accept="application/json,.json"></label>
+        </section>
+      </div>
+    </dialog>
+
+    <dialog id="suggestionsDialog">
+      <div class="dialog-heading"><h2>おすすめサイト</h2><button id="closeSuggestionsButton" class="icon-button" type="button">×</button></div>
+      <p class="dialog-note">Chromeでよくアクセスするサイトのうち、まだブックマークに登録していないものを表示します。</p>
+      <section id="bookmarkSuggestions" class="bookmark-suggestions" hidden>
+        <div class="suggestion-heading"><h3>ブックマーク候補</h3><small>最大6件</small></div>
+        <div id="bookmarkSuggestionList" class="bookmark-suggestion-list"></div>
+      </section>
+      <p id="noBookmarkSuggestions" class="suggestion-empty" hidden>現在表示できるおすすめはありません。</p>
+    </dialog>
+
+    <dialog id="backgroundDialog" class="background-dialog">
+      <div class="dialog-heading"><h2>背景画像</h2><button id="closeBackgroundButton" class="icon-button" type="button">×</button></div>
+      <section class="background-preset-section">
+        <div class="background-preset-heading"><strong>背景プリセット</strong><button id="saveBackgroundPresetButton" class="text-button" type="button">現在の設定を保存</button></div>
+        <div id="backgroundPresetList" class="background-preset-list" aria-label="背景プリセット"></div>
+        <p class="control-note">選択すると、背景画像・テーマカラー・ブックマーク表示がまとめて切り替わります。ドラッグで並べ替えできます。</p>
+      </section>
+      <label id="backgroundModeRow" class="background-mode-row" hidden><span id="backgroundModeLabel">この表示の背景</span>
+        <select id="backgroundMode">
+          <option value="inherit">共通背景を使う</option>
+          <option value="custom">この表示専用</option>
+        </select>
+      </label>
+      <label class="background-mode-row">背景の切り替え
+        <select id="backgroundTransition">
+          <option value="crossfade">クロスフェード</option>
+          <option value="blur">ぼかしフェード</option>
+          <option value="none">演出なし</option>
+        </select>
+      </label>
+      <div id="backgroundPreview" class="background-preview">
+        <img id="backgroundPreviewImage" alt="背景プレビュー">
+        <span id="backgroundPreviewEmpty">画像を選択してください</span>
+        <strong class="preview-label">実際の表示範囲</strong>
+        <i class="preview-grid" aria-hidden="true"></i>
+      </div>
+      <p class="preview-note">枠内がサイドパネルに表示されます。格子を目安に拡大率と位置を調整してください。</p>
+      <label class="secondary-button file-button background-upload">画像を選択<input id="backgroundInput" type="file" accept="image/*"></label>
+      <div class="theme-color-extractor">
+        <button id="extractThemeColorsButton" class="text-button" type="button">画像からテーマカラーを作る</button>
+        <div id="extractedThemeColors" class="extracted-theme-colors" aria-label="抽出したテーマカラー"></div>
+      </div>
+      <div class="background-controls">
+        <label>表示基準
+          <select id="backgroundFit">
+            <option value="height">縦に合わせる</option>
+            <option value="width">横に合わせる</option>
+            <option value="contain">画像全体を表示</option>
+            <option value="cover">枠全体を埋める</option>
+          </select>
+        </label>
+        <label>透明度 <output id="opacityOutput">18%</output><input id="backgroundOpacity" type="range" min="0" max="100" value="18"></label>
+        <label>拡大・縮小 <output id="zoomOutput">100%</output><input id="backgroundZoom" type="range" min="25" max="250" value="100"></label>
+        <label>横位置 <output id="positionXOutput">50%</output><input id="backgroundPositionX" type="range" min="0" max="100" value="50"></label>
+        <label>縦位置 <output id="positionYOutput">0%</output><input id="backgroundPositionY" type="range" min="-100" max="100" value="0"></label>
+      </div>
+      <div class="dialog-actions">
+        <button id="removeBackgroundButton" class="text-button danger-button" type="button">背景を削除</button>
+        <span class="action-spacer"></span>
+        <button id="saveBackgroundButton" class="primary-button compact" type="button">保存</button>
+      </div>
+    </dialog>
+
+    <dialog id="settingsDialog">
+      <div class="dialog-heading"><h2>設定</h2><button id="closeSettingsButton" class="icon-button" type="button">×</button></div>
+      <div class="appearance-controls">
+        <section class="settings-group">
+          <h3>配色</h3>
+          <label>テーマカラー<input id="actionColor" type="color" value="#215c49"></label>
+          <p class="control-note">追加ボタン、選択中のジャンル、HOME、現在ページの枠などに使われます。</p>
+        </section>
+        <section class="settings-group settings-live-preview">
+          <div class="settings-preview-heading"><h3>ライブプレビュー</h3><span>触って確認</span></div>
+          <div class="appearance-preview-surface">
+            <article id="appearanceCardPreview" class="bookmark appearance-card-preview" tabindex="0" role="button" aria-label="ブックマークの操作とサウンドを確認">
+              <div class="favicon">S</div>
+              <div class="bookmark-link"><div class="bookmark-title">SideMarksのブックマーク</div><div class="bookmark-url">example.com</div></div>
+              <div class="item-actions" aria-hidden="true">
+                <button class="set-home" type="button" tabindex="-1">⌂</button>
+                <button class="favorite active" type="button" tabindex="-1">★</button>
+                <button class="delete-item" type="button" tabindex="-1"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13M10 10v7m4-7v7"/></svg></button>
+                <button class="edit" type="button" tabindex="-1">•••</button>
+              </div>
+            </article>
+          </div>
+          <p class="preview-note">動き・音・透明度に加えて、操作ボタンの右上／右下配置も確認できます。</p>
+        </section>
+        <section class="settings-group">
+          <h3>ブックマーク表示</h3>
+          <label class="toggle-label"><span>テーマカラーをブックマークにも使う</span><input id="useThemeCards" type="checkbox"></label>
+          <label>ブックマークの表示スタイル
+            <select id="cardMaterial">
+              <option value="glass">ガラス調</option>
+              <option value="flat">フラット</option>
+            </select>
+          </label>
+          <label>ブックマーク透明度 <output id="bookmarkOpacityOutput">66%</output><input id="bookmarkOpacity" type="range" min="0" max="100" value="66"></label>
+          <p class="control-note">ガラス調・フラットのブックマーク背景の濃さを調整します。テーマカラーを使うと、ジャンル欄と古戦場の日程表示も同系色になります。</p>
+        </section>
+        <section class="settings-group">
+          <h3>操作ボタン</h3>
+          <label class="toggle-label"><span>ブックマークに削除ボタンを表示</span><input id="showDeleteButton" type="checkbox" checked></label>
+          <label class="toggle-label"><span>分割表示の状態を表示</span><input id="showSplitViewControls" type="checkbox" checked></label>
+          <label>ブックマーク操作の表示位置
+            <select id="actionMenuPosition">
+              <option value="top">右上</option>
+              <option value="bottom" selected>右下</option>
+            </select>
+          </label>
+          <p class="control-note">選んだ位置は上のライブプレビューへすぐに反映されます。</p>
+          <p class="control-note">Chromeで分割表示している間、左右のページと現在操作中の側を上部に表示します。</p>
+        </section>
+        <section class="settings-group">
+          <h3>操作感</h3>
+          <label>ブックマークの操作スタイル
+            <select id="interactionStyle">
+              <option value="lift" selected>リフト（浮く・押し込む）</option>
+              <option value="slide">スライド（横移動・押し戻る）</option>
+              <option value="tilt">チルト（傾く・切り返す）</option>
+              <option value="spotlight">スポット（周囲を静かにする）</option>
+              <option value="icon">アイコン（アイコンだけが反応）</option>
+              <option value="invert">インバート（テーマ色に反転）</option>
+            </select>
+          </label>
+          <label>効果の強さ
+            <select id="motionIntensity">
+              <option value="weak">弱</option>
+              <option value="medium" selected>中</option>
+              <option value="strong">強</option>
+            </select>
+          </label>
+          <div class="settings-subsection">
+            <h4>操作音</h4>
+            <label class="toggle-label"><span>操作音を鳴らす</span><input id="soundEnabled" type="checkbox"></label>
+            <label>音の種類
+              <select id="soundTheme">
+                <option value="wood" selected>木琴風</option>
+                <option value="drop">水滴風</option>
+                <option value="glass">ガラス風</option>
+                <option value="digital">電子音</option>
+                <option value="click">クリック音</option>
+              </select>
+            </label>
+            <label>音量 <output id="soundVolumeOutput">40%</output><input id="soundVolume" type="range" min="1" max="100" value="40"></label>
+          </div>
+          <p class="control-note">上のライブプレビューで、動きとホバー・クリック音を確認できます。</p>
+        </section>
+        <section class="settings-group">
+          <h3>画面の動き</h3>
+          <label>表示を切り替えたとき
+            <select id="viewTransition">
+              <option value="none">なし</option>
+              <option value="fade" selected>フェード</option>
+              <option value="slide">横からスライド</option>
+              <option value="scale">ふわっと拡大</option>
+              <option value="cascade">順番に表示</option>
+            </select>
+          </label>
+          <label>ジャンル欄の横移動
+            <select id="genreScrollStyle">
+              <option value="slim" selected>細いバー</option>
+              <option value="arrows">左右ボタン</option>
+            </select>
+          </label>
+        </section>
+        <section class="settings-group">
+          <h3>背景表示モード</h3>
+          <label class="toggle-label"><span>背景確認ボタンを表示</span><input id="showBackgroundOnlyButton" type="checkbox"></label>
+          <label class="toggle-label"><span>時計を表示</span><input id="showBackgroundClock" type="checkbox" checked></label>
+          <label>時計サイズ <output id="backgroundClockSizeOutput">40px</output><input id="backgroundClockSize" type="range" min="28" max="96" value="40"></label>
+          <input id="backgroundClockPositionX" type="hidden" value="95">
+          <input id="backgroundClockPositionY" type="hidden" value="95">
+          <button id="resetBackgroundClockPositionButton" class="secondary-button" type="button">時計の位置を戻す</button>
+          <p class="control-note">時計は背景確認モードで直接ドラッグして移動できます。</p>
+        </section>
+        <section class="settings-group granblue-options">
+          <h3>グラブル用オプション</h3>
+          <label class="toggle-label"><span>ブックマークにHOME設定ボタンを表示</span><input id="showHomeButton" type="checkbox"></label>
+          <label class="toggle-label"><span>通常画面に古戦場の日程を表示</span><input id="showEventInNormalView" type="checkbox"></label>
+          <button id="openEventScheduleButton" class="secondary-button" type="button">古戦場の日程を設定</button>
+          <p class="control-note">HOMEボタンはChromeのホームページ設定を補助します。古戦場の日程は通常画面のジャンル欄の下に表示されます。</p>
+        </section>
+        <section class="settings-group settings-reset-group">
+          <h3>初期設定に戻す</h3>
+          <p class="control-note">配色、ブックマーク表示、操作ボタン、時計を標準状態に戻します。</p>
+          <button id="resetAppearanceButton" class="secondary-button" type="button">初期設定に戻す</button>
+        </section>
+      </div>
+      <div class="dialog-actions">
+        <span class="action-spacer"></span>
+        <button id="saveAppearanceButton" class="primary-button compact" type="button">保存</button>
+      </div>
+    </dialog>
+
+    <dialog id="eventScheduleDialog" class="event-schedule-dialog">
+      <div class="dialog-heading"><h2>古戦場の日程</h2><button id="closeEventScheduleButton" class="icon-button" type="button">×</button></div>
+      <p class="dialog-note">GameWithから古戦場の日程だけを手動取得できます。ゲーム画面の読取りや自動操作は行いません。</p>
+      <div class="schedule-actions">
+        <button id="fetchGameWithScheduleButton" class="secondary-button" type="button">GameWithから日程を更新</button>
+        <button id="openGameWithScheduleButton" class="text-button" type="button">情報元を開く</button>
+      </div>
+      <p id="scheduleSourceStatus" class="schedule-source-status">未取得</p>
+      <div id="scheduleSummary" class="schedule-summary" hidden></div>
+      <div class="schedule-editor">
+        <label>古戦場名<input id="eventScheduleTitle" type="text" placeholder="例：9月光有利古戦場"></label>
+        <label>属性<input id="eventScheduleAttribute" type="text" maxlength="8" placeholder="例：光"></label>
+        <label>全体開始<input id="eventScheduleStart" type="datetime-local"></label>
+        <label>全体終了<input id="eventScheduleEnd" type="datetime-local"></label>
+        <label>詳細日程<textarea id="eventScheduleRows" rows="7" placeholder="予選 | 2026-09-21T19:00 | 2026-09-22T23:59"></textarea></label>
+        <p class="control-note">1行を「名称 | 開始日時 | 終了日時」で入力します。</p>
+      </div>
+      <div class="dialog-actions">
+        <button id="clearEventScheduleButton" class="text-button danger-button" type="button">日程を削除</button>
+        <span class="action-spacer"></span>
+        <button id="saveEventScheduleButton" class="primary-button compact" type="button">保存</button>
+      </div>
+    </dialog>
+
+    <dialog id="initialSetupDialog" class="initial-setup-dialog">
+      <div class="initial-setup-heading">
+        <small>WELCOME TO SIDEMARKS</small>
+        <h2>どちらから始めますか？</h2>
+        <p>開始後もブックマークやジャンル、設定は自由に変更できます。</p>
+      </div>
+      <div class="initial-setup-options">
+        <button id="startWithTemplateButton" class="initial-setup-option recommended" type="button">
+          <span class="initial-setup-icon">⚔</span>
+          <strong>グラブル向けテンプレート</strong>
+          <small>グラブルと普段使い向けのブックマーク、ジャンル、標準アイコンを登録して始めます。</small>
+          <b>おすすめ</b>
+        </button>
+        <button id="startEmptyButton" class="initial-setup-option" type="button">
+          <span class="initial-setup-icon">＋</span>
+          <strong>空の状態で始める</strong>
+          <small>ブックマークやジャンルを登録せず、自分で最初から作成します。</small>
+        </button>
+      </div>
+    </dialog>
+
+    <dialog id="tutorialDialog" class="tutorial-dialog">
+      <div class="dialog-heading"><div><small>はじめてのSideMarks</small><h2>できることと使い方</h2></div><button id="closeTutorialButton" class="icon-button" type="button" aria-label="閉じる">×</button></div>
+      <p class="tutorial-intro">よく見るページを右側にまとめ、見た目や開き方を自分好みに整えられます。</p>
+      <div class="tutorial-grid">
+        <article><i>1</i><div><h3>ページを追加・開く</h3><p>「現在のページを追加」で登録します。ブックマークを押すと、現在のタブで開きます。</p></div></article>
+        <article><i>2</i><div><h3>ジャンルとフォルダで整理</h3><p>大きな分類はジャンル、細かな分類はフォルダを使います。ブックマークや分類はドラッグで移動できます。</p></div></article>
+        <article><i>3</i><div><h3>表示方法とアイコン</h3><p>タイル／アイコン表示を切り替え、「−／＋」で表示数を調整できます。標準アイコンや好きな画像も設定できます。</p></div></article>
+        <article><i>4</i><div><h3>配色と背景</h3><p>歯車でテーマカラーや透明度を調整できます。画像ボタンでは表示ごとの背景や背景プリセットを設定できます。</p></div></article>
+        <article><i>5</i><div><h3>便利な操作</h3><p>お気に入り、一括編集、元に戻す、フォルダ一括開閉に対応しています。検索結果はChrome分割表示の左右を選んで開けます。</p></div></article>
+        <article><i>6</i><div><h3>バックアップ</h3><p>データ管理からJSONを書き出せます。背景画像まで移行するときは完全バックアップを使用してください。</p></div></article>
+      </div>
+      <div class="tutorial-tip"><strong>迷ったときは</strong><span>右上の「？」を押すと、この画面をいつでも開けます。</span></div>
+      <button id="finishTutorialButton" class="primary-button compact tutorial-finish" type="button">SideMarksを始める</button>
+    </dialog>
+
+    <div id="toast" class="toast" role="status"></div>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>

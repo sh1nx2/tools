@@ -1,0 +1,15 @@
+# Generated release archives
+dist/
+*.zip
+
+# Local editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.log
+~$*
