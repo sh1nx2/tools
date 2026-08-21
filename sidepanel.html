@@ -14,6 +14,22 @@
     </div>
     <i id="clockGuideX" class="clock-position-guide clock-position-guide-x" aria-hidden="true"></i>
     <i id="clockGuideY" class="clock-position-guide clock-position-guide-y" aria-hidden="true"></i>
+    <button id="tabShelfButton" class="tab-shelf-bookmark" type="button" title="開いているタブ" aria-label="開いているタブを表示" aria-controls="tabShelfPanel" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="12" height="14" rx="2"/><path d="M9 5V3h10v14h-2"/></svg>
+      <span id="tabShelfCount">0</span>
+    </button>
+    <aside id="tabShelfPanel" class="tab-shelf-panel" aria-label="開いているタブ" hidden>
+      <div class="tab-shelf-heading">
+        <div><h2>開いているタブ</h2><span id="tabShelfSummary"></span></div>
+        <div class="tab-shelf-heading-actions">
+          <button id="newTabButton" class="icon-button" type="button" title="新しいタブ" aria-label="新しいタブを開く">＋</button>
+          <button id="closeTabShelfButton" class="icon-button" type="button" title="閉じる" aria-label="タブ一覧を閉じる">×</button>
+        </div>
+      </div>
+      <input id="tabSearchInput" class="tab-search-input" type="search" placeholder="開いているタブを検索" autocomplete="off" aria-label="開いているタブを検索">
+      <div id="openTabList" class="open-tab-list"></div>
+      <p id="emptyTabSearch" class="tab-search-empty" hidden>一致するタブがありません</p>
+    </aside>
     <header>
       <div class="brand-row">
         <div class="header-leading-actions">

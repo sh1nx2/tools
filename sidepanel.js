@@ -75,7 +75,7 @@ const BUILTIN_ICONS = [
   ["book", "読書", '<path d="M4 5c3-1 5-.5 8 2v14c-3-2.5-5-3-8-2zM20 5c-3-1-5-.5-8 2v14c3-2.5 5-3 8-2z"/>'],
   ["gift", "プレゼント", '<path d="M3 10h18v11H3zM2 6h20v4H2zM12 6v15"/><path d="M12 6c-4 0-6-1-6-3 3-1 5 0 6 3zm0 0c4 0 6-1 6-3-3-1-5 0-6 3z"/>']
 ].map(([id, label, content]) => ({ id, label, content, category: GRANBLUE_ICON_IDS.has(id) ? "granblue" : Object.entries(ICON_CATEGORIES).find(([, ids]) => ids.has(id))?.[0] || "general" }));
-const state = { bookmarks: [], topSites: [], filter: "all", theme: "light", homeBookmarkId: null, currentUrl: "", splitView: null, collapsedFolders: new Set(), folderOrder: [], genres: [], favoriteTabIndex: 0, background: { ...DEFAULT_BACKGROUND }, genreBackgrounds: {}, backgroundTransition: "crossfade", backgroundPresets: [], backgroundPresetAssignments: {}, appearance: { ...DEFAULT_APPEARANCE }, eventSchedule: null, gameWithLastFetchedAt: 0 };
+const state = { bookmarks: [], topSites: [], openTabs: [], filter: "all", theme: "light", homeBookmarkId: null, currentUrl: "", splitView: null, collapsedFolders: new Set(), folderOrder: [], genres: [], favoriteTabIndex: 0, background: { ...DEFAULT_BACKGROUND }, genreBackgrounds: {}, backgroundTransition: "crossfade", backgroundPresets: [], backgroundPresetAssignments: {}, appearance: { ...DEFAULT_APPEARANCE }, eventSchedule: null, gameWithLastFetchedAt: 0 };
 const $ = (selector) => document.querySelector(selector);
 const list = $("#bookmarkList");
 const emptyState = $("#emptyState");
@@ -98,6 +98,8 @@ let uiAudioContext = null;
 let editingCustomIcon = "";
 let editingIconPreset = "";
 let draggedBackgroundPresetId = null;
+let tabShelfOpen = false;
+let tabRefreshTimer = 0;
 
 function normalizeBookmark(item) {
   if (!item || item.id === undefined || item.id === null || !item.title || !item.url) return null;
@@ -157,6 +159,7 @@ async function init() {
   state.eventSchedule = normalizeEventSchedule(saved.eventSchedule);
   state.gameWithLastFetchedAt = Number(saved.gameWithLastFetchedAt) || state.eventSchedule?.fetchedAt || 0;
   await refreshTopSites();
+  await refreshOpenTabs(false);
   if (saved.background && saved.background.layoutVersion !== 2) {
     state.background.y = Number(saved.background.y ?? 50) - 50;
     state.background.layoutVersion = 2;
@@ -193,6 +196,10 @@ function chooseInitialSetup() {
 }
 
 function bindEvents() {
+  $("#tabShelfButton").addEventListener("click", () => toggleTabShelf());
+  $("#closeTabShelfButton").addEventListener("click", () => toggleTabShelf(false));
+  $("#newTabButton").addEventListener("click", () => chrome.tabs.create({}));
+  $("#tabSearchInput").addEventListener("input", renderOpenTabs);
   $("#addCurrentButton").addEventListener("click", addCurrentPage);
   $("#emptyAddButton").addEventListener("click", addCurrentPage);
   $("#searchForm").addEventListener("submit", handleSearchSubmit);
@@ -299,10 +306,16 @@ function bindEvents() {
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === "local" && changes.bookmarks) { state.bookmarks = normalizeBookmarks(changes.bookmarks.newValue); render(); }
   });
-  chrome.tabs.onActivated.addListener(() => refreshCurrentUrl());
+  chrome.tabs.onActivated.addListener(async () => { await refreshCurrentUrl(); scheduleOpenTabsRefresh(); });
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (tab.active && changeInfo.url) refreshCurrentUrl();
+    if (tabShelfOpen && (changeInfo.title !== undefined || changeInfo.url !== undefined || changeInfo.status !== undefined || changeInfo.audible !== undefined || changeInfo.pinned !== undefined || changeInfo.mutedInfo !== undefined)) scheduleOpenTabsRefresh();
   });
+  chrome.tabs.onCreated.addListener(scheduleOpenTabsRefresh);
+  chrome.tabs.onRemoved.addListener(scheduleOpenTabsRefresh);
+  chrome.tabs.onMoved.addListener(scheduleOpenTabsRefresh);
+  chrome.tabs.onAttached.addListener(scheduleOpenTabsRefresh);
+  chrome.tabs.onDetached.addListener(scheduleOpenTabsRefresh);
   chrome.windows.onFocusChanged.addListener(() => refreshCurrentUrl());
   $("#backgroundClock").addEventListener("pointerdown", startClockDrag);
   $("#backgroundClock").addEventListener("pointermove", moveClockDrag);
@@ -316,6 +329,102 @@ function bindEvents() {
   document.addEventListener("click", (event) => {
     if (event.isTrusted && event.target.closest(".bookmark:not(.appearance-card-preview), #filterBar .filter")) playUISound("click");
   }, true);
+}
+
+async function toggleTabShelf(forceOpen = !tabShelfOpen) {
+  tabShelfOpen = Boolean(forceOpen);
+  const panel = $("#tabShelfPanel");
+  panel.hidden = !tabShelfOpen;
+  $("#tabShelfButton").classList.toggle("active", tabShelfOpen);
+  $("#tabShelfButton").setAttribute("aria-expanded", String(tabShelfOpen));
+  $("#tabShelfButton").setAttribute("aria-label", tabShelfOpen ? "タブ一覧を閉じる" : "開いているタブを表示");
+  document.body.classList.toggle("tab-shelf-open", tabShelfOpen);
+  if (!tabShelfOpen) return;
+  await refreshOpenTabs();
+  $("#tabSearchInput").focus();
+}
+
+function scheduleOpenTabsRefresh() {
+  clearTimeout(tabRefreshTimer);
+  tabRefreshTimer = setTimeout(() => refreshOpenTabs(), 80);
+}
+
+async function refreshOpenTabs(shouldRender = true) {
+  try {
+    state.openTabs = await chrome.tabs.query({ currentWindow: true });
+    state.openTabs.sort((a, b) => a.index - b.index);
+  } catch {
+    state.openTabs = [];
+  }
+  $("#tabShelfCount").textContent = String(state.openTabs.length);
+  if (shouldRender && tabShelfOpen) renderOpenTabs();
+}
+
+function renderOpenTabs() {
+  const query = $("#tabSearchInput").value.trim().toLocaleLowerCase("ja");
+  const tabs = state.openTabs.filter((tab) => !query || `${tab.title || ""} ${tab.url || ""}`.toLocaleLowerCase("ja").includes(query));
+  $("#tabShelfSummary").textContent = `${state.openTabs.length}個`;
+  $("#emptyTabSearch").hidden = tabs.length > 0;
+  const container = $("#openTabList");
+  container.replaceChildren(...tabs.map(createOpenTabItem));
+}
+
+function createOpenTabItem(tab) {
+  const row = document.createElement("article");
+  row.className = `open-tab-item${tab.active ? " active" : ""}${tab.pinned ? " pinned" : ""}`;
+  row.dataset.tabId = String(tab.id);
+
+  const open = document.createElement("button");
+  open.type = "button";
+  open.className = "open-tab-main";
+  open.title = tab.title || tab.url || "タブを開く";
+  const favicon = document.createElement("span");
+  favicon.className = "open-tab-favicon";
+  const image = document.createElement("img");
+  image.alt = "";
+  image.src = faviconUrl(tab.url || "");
+  image.addEventListener("error", () => { image.hidden = true; favicon.textContent = (tab.title || "?").slice(0, 1).toUpperCase(); }, { once: true });
+  favicon.append(image);
+  const text = document.createElement("span");
+  text.className = "open-tab-text";
+  const title = document.createElement("strong");
+  title.textContent = tab.title || "無題のタブ";
+  const detail = document.createElement("small");
+  detail.textContent = `${tab.pinned ? "固定中 · " : ""}${safeDomain(tab.url || "")}`;
+  text.append(title, detail);
+  const audio = document.createElement("span");
+  audio.className = "open-tab-audio-state";
+  audio.textContent = tab.mutedInfo?.muted ? "🔇" : tab.audible ? "♪" : "";
+  open.append(favicon, text, audio);
+  open.addEventListener("click", async () => {
+    try { await chrome.tabs.update(tab.id, { active: true }); }
+    catch { showToast("タブを選択できませんでした"); }
+  });
+
+  const actions = document.createElement("div");
+  actions.className = "open-tab-actions";
+  actions.append(
+    createTabAction(tab.pinned ? "固定を解除" : "タブを固定", tab.pinned ? "◆" : "◇", () => chrome.tabs.update(tab.id, { pinned: !tab.pinned })),
+    createTabAction(tab.mutedInfo?.muted ? "ミュートを解除" : "タブをミュート", tab.mutedInfo?.muted ? "🔇" : "♬", () => chrome.tabs.update(tab.id, { muted: !tab.mutedInfo?.muted })),
+    createTabAction("再読み込み", "↻", () => chrome.tabs.reload(tab.id)),
+    createTabAction("タブを閉じる", "×", () => chrome.tabs.remove(tab.id), "close")
+  );
+  row.append(open, actions);
+  return row;
+}
+
+function createTabAction(label, text, action, extraClass = "") {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `open-tab-action ${extraClass}`.trim();
+  button.title = label;
+  button.setAttribute("aria-label", label);
+  button.textContent = text;
+  button.addEventListener("click", async () => {
+    try { await action(); scheduleOpenTabsRefresh(); }
+    catch { showToast(`${label}を実行できませんでした`); }
+  });
+  return button;
 }
 
 function scheduleBookmarkDragCleanup() {
