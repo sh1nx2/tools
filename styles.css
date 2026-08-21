@@ -103,9 +103,9 @@ body[data-tab-rail-side="right"] .tab-shelf-panel { right: 0; left: auto; border
 .tab-shelf-open .open-tab-item { min-height: 55px; border-color: color-mix(in srgb, var(--line) 68%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--surface) 64%, transparent); }
 .open-tab-item:hover { border-color: color-mix(in srgb, var(--accent) 44%, var(--line)); background: color-mix(in srgb, var(--surface) 86%, transparent); box-shadow: 0 5px 15px rgba(22, 34, 28, .09); }
 .open-tab-item.active { border-width: 2px; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
-.open-tab-split-group { display: grid; gap: 0; overflow: hidden; border: 2px solid var(--accent); border-radius: 13px; background: color-mix(in srgb, var(--accent) 9%, var(--surface)); }
+.open-tab-split-group { display: grid; gap: 0; overflow: hidden; border: 0; border-radius: 12px; background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
 .open-tab-split-group .open-tab-item { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
-.open-tab-split-group .open-tab-item + .open-tab-item { border-top: 1px solid color-mix(in srgb, var(--accent) 52%, var(--line)); }
+.open-tab-split-group .open-tab-item + .open-tab-item { border-top: 2px solid color-mix(in srgb, var(--accent) 46%, var(--line)); }
 .open-tab-split-group .open-tab-item.active { background: color-mix(in srgb, var(--accent) 23%, var(--surface)); box-shadow: none; }
 .open-tab-split-group .open-tab-item:hover { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); box-shadow: none; }
 .open-tab-split-group .open-tab-item.active:hover { background: color-mix(in srgb, var(--accent) 27%, var(--surface)); }
