@@ -143,6 +143,7 @@ header { position: relative; z-index: 1; padding: 22px 18px 14px; background: tr
 .brand-row, .dialog-heading, .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .brand-row { justify-content: space-between; }
 .header-leading-actions { display: flex; align-items: center; gap: 2px; }
+.top-app-version { position: absolute; top: 5px; left: 50%; padding: 2px 6px; border: 1px solid color-mix(in srgb, var(--line) 68%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--surface) 42%, transparent); color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .02em; line-height: 1.4; pointer-events: none; transform: translateX(-50%); backdrop-filter: blur(6px); }
 .header-actions { display: flex; align-items: center; gap: 2px; margin-left: auto; }
 .undo-button { color: var(--accent); font-size: 23px; font-weight: 800; }
 .undo-button:disabled { cursor: default; color: var(--muted); opacity: .3; }
