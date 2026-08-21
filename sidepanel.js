@@ -1091,10 +1091,12 @@ function normalizeBackgroundPresets(presets) {
     if (!preset || typeof preset.name !== "string" || !preset.name.trim()) return [];
     const id = typeof preset.id === "string" && preset.id && !ids.has(preset.id) ? preset.id : crypto.randomUUID();
     ids.add(id);
+    const hasBackgroundCollection = preset.genreBackgrounds && typeof preset.genreBackgrounds === "object" && !Array.isArray(preset.genreBackgrounds);
     return [{
       id,
       name: preset.name.trim().slice(0, 40),
       background: normalizeBackgroundSettings(preset.background),
+      ...(hasBackgroundCollection ? { genreBackgrounds: Object.fromEntries(Object.entries(preset.genreBackgrounds).map(([key, settings]) => [key, normalizeBackgroundSettings(settings)])) } : {}),
       appearance: normalizePresetAppearance(preset.appearance),
       theme: preset.theme === "dark" ? "dark" : "light",
       transition: ["crossfade", "blur", "none"].includes(preset.transition) ? preset.transition : "crossfade"
@@ -1123,7 +1125,7 @@ function capturePresetAppearance(source = state.appearance) {
 function renderBackgroundPresets() {
   const container = $("#backgroundPresetList");
   const activeId = state.backgroundPresetAssignments[currentBackgroundPresetKey()] || "";
-  const presets = [{ id: "__default__", name: "標準", background: { ...DEFAULT_BACKGROUND }, appearance: capturePresetAppearance(DEFAULT_APPEARANCE), theme: "light", transition: "crossfade", fixed: true }, ...state.backgroundPresets];
+  const presets = [{ id: "__default__", name: "標準", background: { ...DEFAULT_BACKGROUND }, genreBackgrounds: {}, appearance: capturePresetAppearance(DEFAULT_APPEARANCE), theme: "light", transition: "crossfade", fixed: true }, ...state.backgroundPresets];
   container.replaceChildren(...presets.map((preset) => {
     const card = document.createElement("article");
     card.className = `background-preset-card${activeId === preset.id ? " selected" : ""}`;
@@ -1132,7 +1134,8 @@ function renderBackgroundPresets() {
     const apply = document.createElement("button");
     apply.type = "button";
     apply.className = "background-preset-apply";
-    apply.title = `「${preset.name}」を適用`;
+    const customBackgroundCount = preset.genreBackgrounds ? Object.keys(preset.genreBackgrounds).length : 0;
+    apply.title = `「${preset.name}」を適用${preset.genreBackgrounds ? `（専用背景 ${customBackgroundCount}件を含む）` : ""}`;
     const thumb = document.createElement("span");
     thumb.className = "background-preset-thumb";
     if (preset.background.image) {
@@ -1179,10 +1182,19 @@ async function saveCurrentBackgroundPreset() {
   const entered = prompt("プリセット名を入力してください", "新しい背景");
   const name = entered?.trim().slice(0, 40);
   if (!name) return;
+  const background = structuredClone(state.background);
+  const genreBackgrounds = structuredClone(state.genreBackgrounds);
+  const editingKey = getBackgroundEditorKey();
+  const editingSettings = readBackgroundEditor();
+  if (editingKey) {
+    if ($("#backgroundMode").value === "inherit") delete genreBackgrounds[editingKey];
+    else genreBackgrounds[editingKey] = editingSettings;
+  } else Object.assign(background, editingSettings);
   const preset = {
     id: crypto.randomUUID(),
     name,
-    background: readBackgroundEditor(),
+    background,
+    genreBackgrounds,
     appearance: capturePresetAppearance(),
     theme: state.theme,
     transition: $("#backgroundTransition").value
@@ -1204,18 +1216,25 @@ async function applyBackgroundPreset(preset, silent = false) {
   const backgroundKey = getBackgroundEditorKey();
   const isDefault = preset.id === "__default__";
   const background = normalizeBackgroundSettings(preset.background);
-  if (backgroundKey) {
+  const appliesAllBackgrounds = preset.genreBackgrounds && typeof preset.genreBackgrounds === "object";
+  if (appliesAllBackgrounds) {
+    state.background = background;
+    state.genreBackgrounds = Object.fromEntries(Object.entries(preset.genreBackgrounds).map(([target, settings]) => [target, normalizeBackgroundSettings(settings)]));
+  } else if (backgroundKey) {
     if (isDefault) delete state.genreBackgrounds[backgroundKey];
     else state.genreBackgrounds[backgroundKey] = background;
   } else state.background = background;
   state.appearance = { ...state.appearance, ...normalizePresetAppearance(preset.appearance) };
   state.theme = preset.theme === "dark" ? "dark" : "light";
   state.backgroundTransition = ["crossfade", "blur", "none"].includes(preset.transition) ? preset.transition : "crossfade";
-  state.backgroundPresetAssignments[key] = preset.id;
+  if (appliesAllBackgrounds) {
+    state.backgroundPresetAssignments = Object.fromEntries(["__all__", "__favorite__", "__unassigned__", ...state.genres.map((genre) => genre.id)].map((target) => [target, preset.id]));
+  } else state.backgroundPresetAssignments[key] = preset.id;
   await chrome.storage.local.set({ background: state.background, genreBackgrounds: state.genreBackgrounds, appearance: state.appearance, theme: state.theme, backgroundTransition: state.backgroundTransition, backgroundPresetAssignments: state.backgroundPresetAssignments });
-  if (backgroundKey) $("#backgroundMode").value = isDefault ? "inherit" : "custom";
-  loadBackgroundEditor(isDefault && backgroundKey ? state.background : background);
-  setBackgroundEditorDisabled(Boolean(backgroundKey && isDefault));
+  if (backgroundKey) $("#backgroundMode").value = state.genreBackgrounds[backgroundKey] ? "custom" : "inherit";
+  const editorBackground = backgroundKey && state.genreBackgrounds[backgroundKey] ? state.genreBackgrounds[backgroundKey] : state.background;
+  loadBackgroundEditor(editorBackground);
+  setBackgroundEditorDisabled(Boolean(backgroundKey && !state.genreBackgrounds[backgroundKey]));
   $("#backgroundTransition").value = state.backgroundTransition;
   applyTheme();
   await applyBackground();
@@ -2760,7 +2779,11 @@ function exportData() {
 }
 
 function createBackupData(includeBackgrounds) {
-  const lightweightPresets = state.backgroundPresets.map((preset) => ({ ...preset, background: { ...preset.background, image: "" } }));
+  const lightweightPresets = state.backgroundPresets.map((preset) => ({
+    ...preset,
+    background: { ...preset.background, image: "" },
+    ...(preset.genreBackgrounds ? { genreBackgrounds: Object.fromEntries(Object.entries(preset.genreBackgrounds).map(([key, settings]) => [key, { ...settings, image: "" }])) } : {})
+  }));
   const data = { version: 10, backupType: includeBackgrounds ? "complete" : "lightweight", bookmarks: state.bookmarks, genres: state.genres, favoriteTabIndex: state.favoriteTabIndex, folderOrder: state.folderOrder, collapsedFolders: [...state.collapsedFolders], theme: state.theme, homeBookmarkId: state.homeBookmarkId, appearance: state.appearance, backgroundPresets: lightweightPresets, backgroundPresetAssignments: state.backgroundPresetAssignments, eventSchedule: state.eventSchedule };
   if (includeBackgrounds) Object.assign(data, { background: state.background, genreBackgrounds: state.genreBackgrounds, backgroundTransition: state.backgroundTransition, backgroundPresets: structuredClone(state.backgroundPresets) });
   return data;
