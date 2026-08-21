@@ -430,7 +430,9 @@ function createOpenTabItem(tab) {
   audio.textContent = tab.mutedInfo?.muted ? "🔇" : tab.audible ? "♪" : "";
   const splitBadge = document.createElement("span");
   splitBadge.className = `open-tab-split-badge${state.splitView?.activeTabId === tab.id ? " active" : ""}`;
-  splitBadge.textContent = splitSide === "left" ? "左" : splitSide === "right" ? "右" : "";
+  const splitLabel = Object.assign(document.createElement("span"), { className: "split-badge-label", textContent: "分割" });
+  const splitSideLabel = Object.assign(document.createElement("b"), { textContent: splitSide === "left" ? "左" : splitSide === "right" ? "右" : "" });
+  splitBadge.append(splitLabel, splitSideLabel);
   splitBadge.hidden = !splitSide;
   open.append(favicon, text, audio, splitBadge);
   open.addEventListener("click", async () => {
