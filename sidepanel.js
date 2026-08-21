@@ -2322,15 +2322,19 @@ function openBulkEditDialog() {
 function handleBulkFolderSelection() {
   const select = $("#bulkFolderSelect");
   if (select.value !== "new") return;
-  const newName = prompt("新しいフォルダ名を入力してください", "")?.trim().slice(0, 40);
-  if (!newName || newName === "__new__") return void (select.value = "keep");
-  const value = `folder:${newName}`;
-  let option = [...select.options].find((entry) => entry.value === value);
-  if (!option) {
-    option = Object.assign(document.createElement("option"), { value, textContent: newName });
-    select.insertBefore(option, select.querySelector('option[value="new"]'));
-  }
-  select.value = value;
+  select.value = "keep";
+  setTimeout(() => {
+    if (!$("#bulkEditDialog").open) return;
+    const newName = prompt("新しいフォルダ名を入力してください", "")?.trim().slice(0, 40);
+    if (!newName || newName === "__new__") return;
+    const value = `folder:${newName}`;
+    let option = [...select.options].find((entry) => entry.value === value);
+    if (!option) {
+      option = Object.assign(document.createElement("option"), { value, textContent: newName });
+      select.insertBefore(option, select.querySelector('option[value="new"]'));
+    }
+    select.value = value;
+  }, 0);
 }
 
 async function applyBulkEdit() {
@@ -2516,7 +2520,8 @@ async function saveEdit(event) {
   item.url = $("#urlInput").value.trim();
   item.customIcon = editingCustomIcon;
   item.iconPreset = editingIconPreset;
-  item.folder = $("#folderSelect").value || "未分類";
+  const selectedFolder = $("#folderSelect").value;
+  item.folder = selectedFolder && selectedFolder !== "__new__" ? selectedFolder : "未分類";
   item.genreId = $("#genreSelect").value || null;
   $("#editDialog").close();
   await persist("変更を保存しました", undoSnapshot);
@@ -2531,19 +2536,20 @@ function handleFolderSelection() {
     return;
   }
   const previous = select.dataset.previousFolder || "未分類";
-  const entered = prompt("新しいフォルダ名を入力してください", "");
-  const newName = entered?.trim().slice(0, 40);
-  if (!newName || newName === "__new__") {
-    select.value = previous;
-    return;
-  }
-  const existing = [...select.options].find((option) => option.value === newName);
-  if (!existing) {
-    const option = Object.assign(document.createElement("option"), { value: newName, textContent: newName });
-    select.insertBefore(option, select.querySelector('option[value="__new__"]'));
-  }
-  select.value = newName;
-  select.dataset.previousFolder = newName;
+  select.value = previous;
+  setTimeout(() => {
+    if (!$("#editDialog").open) return;
+    const entered = prompt("新しいフォルダ名を入力してください", "");
+    const newName = entered?.trim().slice(0, 40);
+    if (!newName || newName === "__new__") return;
+    const existing = [...select.options].find((option) => option.value === newName);
+    if (!existing) {
+      const option = Object.assign(document.createElement("option"), { value: newName, textContent: newName });
+      select.insertBefore(option, select.querySelector('option[value="__new__"]'));
+    }
+    select.value = newName;
+    select.dataset.previousFolder = newName;
+  }, 0);
 }
 
 async function renameFolder(oldName) {
