@@ -2705,7 +2705,7 @@ function updateSplitViewStatus() {
   panel.classList.toggle("is-split", visible);
   document.body.classList.toggle("split-view-active", Boolean(state.splitView));
   if (!visible) {
-    $("#splitViewState").textContent = "通常";
+    $("#splitViewState").textContent = "OFF";
     $("#splitLeftTitle").textContent = "現在のタブ";
     $("#splitRightTitle").textContent = "分割なし";
     $("#splitLeftTab").classList.remove("active");
@@ -2715,7 +2715,7 @@ function updateSplitViewStatus() {
     renderOpenTabs();
     return;
   }
-  $("#splitViewState").textContent = "分割中";
+  $("#splitViewState").textContent = "ON";
   $("#splitLeftTab").disabled = false;
   $("#splitRightTab").disabled = false;
   $("#splitLeftTitle").textContent = state.splitView.leftTitle;
