@@ -1157,11 +1157,14 @@ function renderBackgroundPresets() {
     if (!preset.fixed) {
       const actions = document.createElement("div");
       actions.className = "background-preset-actions";
+      const overwrite = Object.assign(document.createElement("button"), { type: "button", textContent: "↻", title: "現在の設定で上書き" });
       const rename = Object.assign(document.createElement("button"), { type: "button", textContent: "✎", title: "名前を変更" });
       const remove = Object.assign(document.createElement("button"), { type: "button", textContent: "🗑", title: "削除" });
+      overwrite.setAttribute("aria-label", `${preset.name}を現在の設定で上書き`);
+      overwrite.addEventListener("click", () => overwriteBackgroundPreset(preset));
       rename.addEventListener("click", () => renameBackgroundPreset(preset));
       remove.addEventListener("click", () => deleteBackgroundPreset(preset));
-      actions.append(rename, remove);
+      actions.append(overwrite, rename, remove);
       card.append(actions);
       card.addEventListener("dragstart", (event) => { draggedBackgroundPresetId = preset.id; event.dataTransfer.effectAllowed = "move"; card.classList.add("dragging"); });
       card.addEventListener("dragover", (event) => { if (!draggedBackgroundPresetId || draggedBackgroundPresetId === preset.id) return; event.preventDefault(); card.classList.add("drop-target"); });
@@ -1185,22 +1188,10 @@ async function saveCurrentBackgroundPreset() {
   const entered = prompt("プリセット名を入力してください", "新しい背景");
   const name = entered?.trim().slice(0, 40);
   if (!name) return;
-  const background = structuredClone(state.background);
-  const genreBackgrounds = structuredClone(state.genreBackgrounds);
-  const editingKey = getBackgroundEditorKey();
-  const editingSettings = readBackgroundEditor();
-  if (editingKey) {
-    if ($("#backgroundMode").value === "inherit") delete genreBackgrounds[editingKey];
-    else genreBackgrounds[editingKey] = editingSettings;
-  } else Object.assign(background, editingSettings);
   const preset = {
     id: crypto.randomUUID(),
     name,
-    background,
-    genreBackgrounds,
-    appearance: capturePresetAppearance(),
-    theme: state.theme,
-    transition: $("#backgroundTransition").value
+    ...captureCurrentBackgroundPresetData()
   };
   state.backgroundPresets.push(preset);
   renderBackgroundPresets();
@@ -1211,6 +1202,40 @@ async function saveCurrentBackgroundPreset() {
     state.backgroundPresets = state.backgroundPresets.filter((item) => item.id !== preset.id);
     renderBackgroundPresets();
     showToast("背景プリセットを保存できませんでした");
+  }
+}
+
+function captureCurrentBackgroundPresetData() {
+  const background = structuredClone(state.background);
+  const genreBackgrounds = structuredClone(state.genreBackgrounds);
+  const editingKey = getBackgroundEditorKey();
+  const editingSettings = readBackgroundEditor();
+  if (editingKey) {
+    if ($("#backgroundMode").value === "inherit") delete genreBackgrounds[editingKey];
+    else genreBackgrounds[editingKey] = editingSettings;
+  } else Object.assign(background, editingSettings);
+  return {
+    background,
+    genreBackgrounds,
+    appearance: capturePresetAppearance(),
+    theme: state.theme,
+    transition: $("#backgroundTransition").value
+  };
+}
+
+async function overwriteBackgroundPreset(preset) {
+  if (!confirm(`背景プリセット「${preset.name}」を現在の設定で上書きしますか？`)) return;
+  const previous = structuredClone(preset);
+  Object.assign(preset, captureCurrentBackgroundPresetData());
+  try {
+    await chrome.storage.local.set({ backgroundPresets: state.backgroundPresets });
+    renderBackgroundPresets();
+    showToast(`「${preset.name}」を上書きしました`);
+  } catch {
+    Object.keys(preset).forEach((key) => delete preset[key]);
+    Object.assign(preset, previous);
+    renderBackgroundPresets();
+    showToast("背景プリセットを上書きできませんでした");
   }
 }
 
