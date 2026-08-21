@@ -2,6 +2,12 @@ name: Build release ZIP
 
 on:
   workflow_dispatch:
+    inputs:
+      upload_to_drive:
+        description: Google Driveの固定配布ファイルも更新する
+        required: true
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -37,3 +43,11 @@ jobs:
           path: dist/SideMarks-v${{ steps.manifest.outputs.version }}.zip
           if-no-files-found: error
           retention-days: 30
+
+      - name: Update Google Drive distribution file
+        if: ${{ inputs.upload_to_drive }}
+        shell: pwsh
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          GOOGLE_DRIVE_FILE_ID: ${{ secrets.GOOGLE_DRIVE_FILE_ID }}
+        run: node ./scripts/upload-drive.mjs

@@ -152,7 +152,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-release.
 
 ### GitHub Actionsで作成する
 
-GitHubの`Actions`から`Build release ZIP`を開き、`Run workflow`を押すと、同じ配布用ZIPを手動で生成できます。完了した実行結果の`Artifacts`に表示される`SideMarks-vX.X.X`からダウンロードできます。通常のPushだけでは実行されません。成果物の保存期間は30日です。
+GitHubの`Actions`から`Build release ZIP`を開き、`Run workflow`を押すと、同じ配布用ZIPを手動で生成できます。`Google Driveの固定配布ファイルも更新する`を有効にすると、登録済みのDriveファイルを同じ共有URLのまま更新します。無効にした場合はZIP生成だけを行います。完了した実行結果の`Artifacts`に表示される`SideMarks-vX.X.X`からもダウンロードできます。通常のPushだけでは実行されません。成果物の保存期間は30日です。
 
 拡張機能フォルダには、使用者のブックマークや背景画像は含まれません。データ管理から書き出したJSONには登録URLや設定が含まれ、完全バックアップには背景画像も含まれるため、配布物へ入れないでください。
 

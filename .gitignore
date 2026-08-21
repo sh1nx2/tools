@@ -13,3 +13,7 @@ Desktop.ini
 *.tmp
 *.log
 ~$*
+
+# Generated Google authentication files
+gha-creds-*.json
+service-account-key*.json
