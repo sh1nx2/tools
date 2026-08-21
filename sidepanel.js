@@ -371,8 +371,9 @@ function renderOpenTabs() {
 }
 
 function createOpenTabItem(tab) {
+  const splitSide = state.splitView?.leftTabId === tab.id ? "left" : state.splitView?.rightTabId === tab.id ? "right" : "";
   const row = document.createElement("article");
-  row.className = `open-tab-item${tab.active ? " active" : ""}${tab.pinned ? " pinned" : ""}`;
+  row.className = `open-tab-item${tab.active ? " active" : ""}${tab.pinned ? " pinned" : ""}${splitSide ? ` split-member split-${splitSide}` : ""}`;
   row.dataset.tabId = String(tab.id);
   row.draggable = true;
   row.addEventListener("dragstart", (event) => {
@@ -406,7 +407,7 @@ function createOpenTabItem(tab) {
   const open = document.createElement("button");
   open.type = "button";
   open.className = "open-tab-main";
-  open.title = tab.title || tab.url || "タブを開く";
+  open.title = `${tab.title || tab.url || "タブを開く"}\nドラッグ：並び替え / 中央クリック：閉じる`;
   const favicon = document.createElement("span");
   favicon.className = "open-tab-favicon";
   const image = document.createElement("img");
@@ -424,11 +425,21 @@ function createOpenTabItem(tab) {
   const audio = document.createElement("span");
   audio.className = "open-tab-audio-state";
   audio.textContent = tab.mutedInfo?.muted ? "🔇" : tab.audible ? "♪" : "";
-  open.append(favicon, text, audio);
+  const splitBadge = document.createElement("span");
+  splitBadge.className = `open-tab-split-badge${state.splitView?.activeTabId === tab.id ? " active" : ""}`;
+  splitBadge.textContent = splitSide === "left" ? "左" : splitSide === "right" ? "右" : "";
+  splitBadge.hidden = !splitSide;
+  open.append(favicon, text, audio, splitBadge);
   open.addEventListener("click", async () => {
     if (chromeTabWasDragged) return;
     try { await chrome.tabs.update(tab.id, { active: true }); }
     catch { showToast("タブを選択できませんでした"); }
+  });
+  open.addEventListener("auxclick", async (event) => {
+    if (event.button !== 1) return;
+    event.preventDefault();
+    try { await chrome.tabs.remove(tab.id); }
+    catch { showToast("タブを閉じられませんでした"); }
   });
 
   const actions = document.createElement("div");
@@ -2664,13 +2675,17 @@ function updateSplitViewStatus() {
   const visible = Boolean(state.splitView);
   panel.hidden = !visible;
   document.body.classList.toggle("split-view-active", Boolean(state.splitView));
-  if (!visible) return;
+  if (!visible) {
+    renderOpenTabs();
+    return;
+  }
   $("#splitLeftTitle").textContent = state.splitView.leftTitle;
   $("#splitRightTitle").textContent = state.splitView.rightTitle;
   $("#splitLeftTab").title = `左側：${state.splitView.leftTitle}`;
   $("#splitRightTab").title = `右側：${state.splitView.rightTitle}`;
   $("#splitLeftTab").classList.toggle("active", state.splitView.activeTabId === state.splitView.leftTabId);
   $("#splitRightTab").classList.toggle("active", state.splitView.activeTabId === state.splitView.rightTabId);
+  renderOpenTabs();
 }
 
 async function focusSplitTab(tabId) {
