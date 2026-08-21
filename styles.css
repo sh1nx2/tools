@@ -606,6 +606,7 @@ dialog input:focus, dialog select:focus, dialog textarea:focus { border-color: v
 .appearance-controls select { min-width: 132px; }
 .appearance-controls .toggle-label input { width: 18px; height: 18px; accent-color: var(--action-color); }
 .settings-reset-group .secondary-button { margin-top: 2px; }
+.app-version { align-self: center; color: var(--muted); font-size: 10px; font-weight: 650; letter-spacing: .02em; }
 .appearance-preview-wrap { display: grid; gap: 6px; }
 .appearance-preview-wrap > span { color: var(--muted); font-size: 10px; font-weight: 800; }
 .appearance-preview-surface { padding: 10px; border: 1px solid var(--line); border-radius: 12px; background-color: #8fa6ad; background-image: linear-gradient(45deg, rgba(255,255,255,.28) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,255,255,.28) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(255,255,255,.28) 75%), linear-gradient(-45deg, transparent 75%, rgba(255,255,255,.28) 75%); background-position: 0 0, 0 9px, 9px -9px, -9px 0; background-size: 18px 18px; }

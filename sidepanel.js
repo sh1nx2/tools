@@ -129,6 +129,7 @@ function normalizeGenre(genre) {
 }
 
 async function init() {
+  $("#appVersion").textContent = `SideMarks v${chrome.runtime.getManifest().version}`;
   let saved = await chrome.storage.local.get(["bookmarks", "theme", "homeBookmarkId", "collapsedFolders", "folderOrder", "genres", "favoriteTabIndex", "background", "genreBackgrounds", "backgroundTransition", "backgroundPresets", "backgroundPresetAssignments", "appearance", "eventSchedule", "gameWithLastFetchedAt", "tutorialSeen"]);
   const firstLaunch = !Array.isArray(saved.bookmarks);
   if (firstLaunch) {
