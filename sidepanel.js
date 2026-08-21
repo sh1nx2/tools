@@ -1,4 +1,4 @@
-const DEFAULT_APPEARANCE = { actionColor: "#215c49", bookmarkOpacity: 66, useThemeCards: false, cardMaterial: "glass", tileColumns: 2, showHomeButton: true, showDeleteButton: true, showSplitViewControls: true, actionMenuPosition: "bottom", searchEngine: "web", searchSplitSide: "left", motionIntensity: "strong", interactionStyle: "lift", viewTransition: "fade", genreScrollStyle: "slim", soundEnabled: true, soundTheme: "wood", soundVolume: 40, showBackgroundOnlyButton: true, showBackgroundClock: true, showEventInNormalView: true, backgroundClockSize: 69, backgroundClockPositionX: 50, backgroundClockPositionY: 5.5 };
+const DEFAULT_APPEARANCE = { actionColor: "#215c49", bookmarkOpacity: 66, useThemeCards: false, cardMaterial: "glass", tileColumns: 2, showHomeButton: true, showDeleteButton: true, showSplitViewControls: true, actionMenuPosition: "bottom", showTabRail: true, tabRailSide: "left", searchEngine: "web", searchSplitSide: "left", motionIntensity: "strong", interactionStyle: "lift", viewTransition: "fade", genreScrollStyle: "slim", soundEnabled: true, soundTheme: "wood", soundVolume: 40, showBackgroundOnlyButton: true, showBackgroundClock: true, showEventInNormalView: true, backgroundClockSize: 69, backgroundClockPositionX: 50, backgroundClockPositionY: 5.5 };
 const DEFAULT_BACKGROUND = { image: "", opacity: 18, zoom: 100, x: 50, y: 0, fit: "height", layoutVersion: 2 };
 const GAMEWITH_SCHEDULE_URL = "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/28687";
 const GRANBLUE_ICON_IDS = new Set(["home", "quest", "rescue", "raid", "party", "enhance", "evolve", "inventory", "storage", "gacha", "boss", "high-difficulty", "coop-create", "coop-search", "solo", "sage", "drops", "weapon", "character", "summon", "event", "fire", "water", "earth", "wind", "light", "dark", "arcarum", "sandbox"]);
@@ -248,6 +248,8 @@ function bindEvents() {
   $("#showDeleteButton").addEventListener("change", previewAppearanceSettings);
   $("#showSplitViewControls").addEventListener("change", previewAppearanceSettings);
   $("#actionMenuPosition").addEventListener("change", previewAppearanceSettings);
+  $("#showTabRail").addEventListener("change", previewAppearanceSettings);
+  $("#tabRailSide").addEventListener("change", previewAppearanceSettings);
   $("#showBackgroundClock").addEventListener("change", previewAppearanceSettings);
   $("#showEventInNormalView").addEventListener("change", previewAppearanceSettings);
   $("#showBackgroundOnlyButton").addEventListener("change", previewAppearanceSettings);
@@ -822,11 +824,13 @@ function applyAppearance(settings = state.appearance) {
   document.body.dataset.interactionStyle = ["lift", "slide", "tilt", "spotlight", "icon", "invert"].includes(settings.interactionStyle) ? settings.interactionStyle : "lift";
   document.body.dataset.viewTransition = ["none", "fade", "slide", "scale", "cascade"].includes(settings.viewTransition) ? settings.viewTransition : "fade";
   document.body.dataset.actionPosition = settings.actionMenuPosition === "top" ? "top" : "bottom";
+  document.body.dataset.tabRailSide = settings.tabRailSide === "right" ? "right" : "left";
   document.body.dataset.genreScroll = ["slim", "arrows"].includes(settings.genreScrollStyle) ? settings.genreScrollStyle : "slim";
   document.body.classList.toggle("theme-colored-bookmarks", Boolean(settings.useThemeCards));
   document.body.classList.toggle("hide-home-buttons", !settings.showHomeButton);
   document.body.classList.toggle("hide-delete-buttons", !settings.showDeleteButton);
   document.body.classList.toggle("hide-split-view-controls", settings.showSplitViewControls !== true);
+  document.body.classList.toggle("hide-tab-rail", settings.showTabRail === false);
   document.body.classList.toggle("hide-background-clock", settings.showBackgroundClock === false);
   document.body.classList.toggle("hide-normal-event", settings.showEventInNormalView === false);
   document.body.classList.toggle("hide-background-only-button", settings.showBackgroundOnlyButton !== true);
@@ -1264,6 +1268,8 @@ function setAppearanceInputs(settings) {
   $("#showDeleteButton").checked = settings.showDeleteButton !== false;
   $("#showSplitViewControls").checked = settings.showSplitViewControls === true;
   $("#actionMenuPosition").value = settings.actionMenuPosition === "top" ? "top" : "bottom";
+  $("#showTabRail").checked = settings.showTabRail !== false;
+  $("#tabRailSide").value = settings.tabRailSide === "right" ? "right" : "left";
   $("#showBackgroundClock").checked = settings.showBackgroundClock !== false;
   $("#showEventInNormalView").checked = settings.showEventInNormalView !== false;
   $("#showBackgroundOnlyButton").checked = settings.showBackgroundOnlyButton === true;
@@ -1298,6 +1304,8 @@ async function saveAppearance() {
     showDeleteButton: $("#showDeleteButton").checked,
     showSplitViewControls: $("#showSplitViewControls").checked,
     actionMenuPosition: $("#actionMenuPosition").value,
+    showTabRail: $("#showTabRail").checked,
+    tabRailSide: $("#tabRailSide").value,
     showBackgroundOnlyButton: $("#showBackgroundOnlyButton").checked,
     showBackgroundClock: $("#showBackgroundClock").checked,
     showEventInNormalView: $("#showEventInNormalView").checked,
@@ -1332,6 +1340,8 @@ function previewAppearanceSettings() {
     showDeleteButton: $("#showDeleteButton").checked,
     showSplitViewControls: $("#showSplitViewControls").checked,
     actionMenuPosition: $("#actionMenuPosition").value,
+    showTabRail: $("#showTabRail").checked,
+    tabRailSide: $("#tabRailSide").value,
     showBackgroundOnlyButton: $("#showBackgroundOnlyButton").checked,
     showBackgroundClock: $("#showBackgroundClock").checked,
     showEventInNormalView: $("#showEventInNormalView").checked,
