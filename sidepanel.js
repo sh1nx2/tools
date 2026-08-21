@@ -240,6 +240,7 @@ function bindEvents() {
   $("#saveBackgroundPresetButton").addEventListener("click", saveCurrentBackgroundPreset);
   $("#extractThemeColorsButton").addEventListener("click", extractThemeColors);
   $("#backgroundMode").addEventListener("change", handleBackgroundModeChange);
+  $("#backgroundTarget").addEventListener("change", handleBackgroundTargetChange);
   $("#backgroundTransition").addEventListener("change", markBackgroundPresetCustomized);
   $("#backgroundFit").addEventListener("change", () => { markBackgroundPresetCustomized(); previewBackgroundSettings(); });
   $("#useThemeCards").addEventListener("change", previewAppearanceSettings);
@@ -353,14 +354,12 @@ async function refreshOpenTabs(shouldRender = true) {
   } catch {
     state.openTabs = [];
   }
-  $("#tabShelfCount").textContent = String(state.openTabs.length);
   if (shouldRender) renderOpenTabs();
 }
 
 function renderOpenTabs() {
   const query = $("#tabSearchInput").value.trim().toLocaleLowerCase("ja");
   const tabs = state.openTabs.filter((tab) => !query || `${tab.title || ""} ${tab.url || ""}`.toLocaleLowerCase("ja").includes(query));
-  $("#tabShelfSummary").textContent = `${state.openTabs.length}個`;
   $("#emptyTabSearch").hidden = tabs.length > 0;
   const container = $("#openTabList");
   container.replaceChildren(...tabs.map(createOpenTabItem));
@@ -941,7 +940,34 @@ async function applyBackground() {
 }
 
 function openBackgroundDialog() {
+  renderBackgroundTargets();
   const backgroundKey = getActiveBackgroundKey();
+  $("#backgroundTarget").value = backgroundKey || "__all__";
+  loadBackgroundTarget(backgroundKey);
+  $("#backgroundTransition").value = state.backgroundTransition;
+  renderBackgroundPresets();
+  $("#backgroundDialog").showModal();
+  requestAnimationFrame(sizeBackgroundPreview);
+}
+
+function renderBackgroundTargets() {
+  const target = $("#backgroundTarget");
+  const options = [
+    ["__all__", "すべて（共通背景）"],
+    ["__favorite__", "お気に入り"],
+    ["__unassigned__", "未分類"],
+    ...state.genres.map((genre) => [genre.id, genre.name])
+  ];
+  target.replaceChildren(...options.map(([value, label]) => Object.assign(document.createElement("option"), { value, textContent: label })));
+}
+
+function handleBackgroundTargetChange() {
+  const selected = $("#backgroundTarget").value;
+  loadBackgroundTarget(selected === "__all__" ? null : selected);
+  renderBackgroundPresets();
+}
+
+function loadBackgroundTarget(backgroundKey) {
   const row = $("#backgroundModeRow");
   row.hidden = !backgroundKey;
   row.dataset.backgroundKey = backgroundKey || "";
@@ -954,9 +980,6 @@ function openBackgroundDialog() {
   setBackgroundEditorDisabled(Boolean(backgroundKey && $("#backgroundMode").value === "inherit"));
   updateRemoveBackgroundLabel();
   previewBackgroundSettings();
-  renderBackgroundPresets();
-  $("#backgroundDialog").showModal();
-  requestAnimationFrame(sizeBackgroundPreview);
 }
 
 function getActiveBackgroundKey() {
@@ -1014,7 +1037,12 @@ function normalizeBackgroundPresetAssignments(assignments, presets = state.backg
   return Object.fromEntries(Object.entries(assignments).filter(([key, id]) => validKeys.has(key) && validPresetIds.has(id)));
 }
 
-function currentBackgroundPresetKey() { return getActiveBackgroundKey() || "__all__"; }
+function getBackgroundEditorKey() {
+  if ($("#backgroundDialog").open) return $("#backgroundModeRow").dataset.backgroundKey || null;
+  return getActiveBackgroundKey();
+}
+
+function currentBackgroundPresetKey() { return getBackgroundEditorKey() || "__all__"; }
 
 function capturePresetAppearance(source = state.appearance) {
   return normalizePresetAppearance(source);
@@ -1101,7 +1129,7 @@ async function saveCurrentBackgroundPreset() {
 
 async function applyBackgroundPreset(preset, silent = false) {
   const key = currentBackgroundPresetKey();
-  const backgroundKey = getActiveBackgroundKey();
+  const backgroundKey = getBackgroundEditorKey();
   const isDefault = preset.id === "__default__";
   const background = normalizeBackgroundSettings(preset.background);
   if (backgroundKey) {

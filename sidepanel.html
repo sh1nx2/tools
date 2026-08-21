@@ -15,12 +15,11 @@
     <i id="clockGuideX" class="clock-position-guide clock-position-guide-x" aria-hidden="true"></i>
     <i id="clockGuideY" class="clock-position-guide clock-position-guide-y" aria-hidden="true"></i>
     <button id="tabShelfButton" class="tab-shelf-bookmark" type="button" title="開いているタブ" aria-label="開いているタブを表示" aria-controls="tabShelfPanel" aria-expanded="false">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="5" width="12" height="14" rx="2"/><path d="M9 5V3h10v14h-2"/></svg>
-      <span id="tabShelfCount">0</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
     <aside id="tabShelfPanel" class="tab-shelf-panel" aria-label="開いているタブ">
       <div class="tab-shelf-heading">
-        <div><h2>開いているタブ</h2><span id="tabShelfSummary"></span></div>
+        <div><h2>開いているタブ</h2></div>
         <div class="tab-shelf-heading-actions">
           <button id="newTabButton" class="icon-button" type="button" title="新しいタブ" aria-label="新しいタブを開く">＋</button>
           <button id="closeTabShelfButton" class="icon-button" type="button" title="閉じる" aria-label="タブ一覧を閉じる">×</button>
@@ -231,6 +230,9 @@
         <div id="backgroundPresetList" class="background-preset-list" aria-label="背景プリセット"></div>
         <p class="control-note">選択すると、背景画像・テーマカラー・ブックマーク表示がまとめて切り替わります。ドラッグで並べ替えできます。</p>
       </section>
+      <label class="background-mode-row">編集する表示
+        <select id="backgroundTarget"></select>
+      </label>
       <label id="backgroundModeRow" class="background-mode-row" hidden><span id="backgroundModeLabel">この表示の背景</span>
         <select id="backgroundMode">
           <option value="inherit">共通背景を使う</option>
