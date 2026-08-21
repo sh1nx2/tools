@@ -2720,7 +2720,7 @@ function updateSplitViewStatus() {
     renderOpenTabs();
     return;
   }
-  $("#splitViewState").textContent = "ON";
+  $("#splitViewState").textContent = "分割中";
   $("#splitLeftTab").disabled = false;
   $("#splitRightTab").disabled = false;
   $("#splitLeftTitle").textContent = state.splitView.leftTitle;
