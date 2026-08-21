@@ -150,6 +150,10 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-release.
 
 配布用ZIPにはChrome拡張機能の実行に必要なファイルだけが入り、Git設定、開発用スクリプト、過去のZIPは含まれません。
 
+### GitHub Actionsで作成する
+
+GitHubの`Actions`から`Build release ZIP`を開き、`Run workflow`を押すと、同じ配布用ZIPを手動で生成できます。完了した実行結果の`Artifacts`に表示される`SideMarks-vX.X.X`からダウンロードできます。通常のPushだけでは実行されません。成果物の保存期間は30日です。
+
 拡張機能フォルダには、使用者のブックマークや背景画像は含まれません。データ管理から書き出したJSONには登録URLや設定が含まれ、完全バックアップには背景画像も含まれるため、配布物へ入れないでください。
 
 ## 更新方法

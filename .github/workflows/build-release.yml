@@ -1,0 +1,39 @@
+name: Build release ZIP
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build SideMarks ZIP
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Read manifest version
+        id: manifest
+        shell: pwsh
+        run: |
+          $manifest = Get-Content -Raw -Encoding UTF8 manifest.json | ConvertFrom-Json
+          if ([string]$manifest.version -notmatch '^\d+(\.\d+){0,3}$') {
+            throw "Invalid manifest version: $($manifest.version)"
+          }
+          "version=$($manifest.version)" >> $env:GITHUB_OUTPUT
+
+      - name: Build release ZIP
+        shell: pwsh
+        run: ./scripts/build-release.ps1
+
+      - name: Upload release ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: SideMarks-v${{ steps.manifest.outputs.version }}
+          path: dist/SideMarks-v${{ steps.manifest.outputs.version }}.zip
+          if-no-files-found: error
+          retention-days: 30
