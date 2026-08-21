@@ -321,7 +321,7 @@ function bindEvents() {
     if (changeInfo.title !== undefined || changeInfo.url !== undefined || changeInfo.status !== undefined || changeInfo.audible !== undefined || changeInfo.pinned !== undefined || changeInfo.mutedInfo !== undefined || changeInfo.splitViewId !== undefined) scheduleOpenTabsRefresh();
   });
   chrome.tabs.onCreated.addListener(scheduleOpenTabsRefresh);
-  chrome.tabs.onRemoved.addListener(scheduleOpenTabsRefresh);
+  chrome.tabs.onRemoved.addListener(() => { scheduleOpenTabsRefresh(); refreshCurrentUrl(); });
   chrome.tabs.onMoved.addListener(scheduleOpenTabsRefresh);
   chrome.tabs.onAttached.addListener(scheduleOpenTabsRefresh);
   chrome.tabs.onDetached.addListener(scheduleOpenTabsRefresh);
@@ -2683,13 +2683,22 @@ async function refreshCurrentUrl(shouldRender = true) {
   const previousUrl = state.currentUrl;
   const previousSplitSignature = state.splitView ? `${state.splitView.leftTabId}:${state.splitView.rightTabId}:${state.splitView.activeTabId}:${state.splitView.leftTitle}:${state.splitView.rightTitle}` : "";
   state.splitView = null;
-  if (tab && Number.isInteger(tab.splitViewId) && tab.splitViewId !== chrome.tabs.SPLIT_VIEW_ID_NONE) {
+  if (tab) {
     const windowTabs = await chrome.tabs.query({ windowId: tab.windowId });
-    const splitTabs = windowTabs.filter((candidate) => candidate.splitViewId === tab.splitViewId).sort((a, b) => a.index - b.index);
+    const splitGroups = new Map();
+    for (const candidate of windowTabs) {
+      if (!Number.isInteger(candidate.splitViewId) || candidate.splitViewId === chrome.tabs.SPLIT_VIEW_ID_NONE) continue;
+      if (!splitGroups.has(candidate.splitViewId)) splitGroups.set(candidate.splitViewId, []);
+      splitGroups.get(candidate.splitViewId).push(candidate);
+    }
+    const activeGroup = Number.isInteger(tab.splitViewId) ? splitGroups.get(tab.splitViewId) : null;
+    const splitTabs = (activeGroup?.length >= 2 ? activeGroup : [...splitGroups.values()].filter((group) => group.length >= 2).sort((a, b) => Math.max(...b.map((item) => item.lastAccessed || 0)) - Math.max(...a.map((item) => item.lastAccessed || 0)))[0])?.sort((a, b) => a.index - b.index) || [];
     const [left, right] = splitTabs;
     if (left?.id && right?.id) {
+      const pairIsActive = left.id === tab.id || right.id === tab.id;
       state.splitView = {
-        activeTabId: tab.id,
+        activeTabId: pairIsActive ? tab.id : null,
+        pairIsActive,
         leftTabId: left.id,
         rightTabId: right.id,
         leftTitle: left.title || safeDomain(left.url || "") || "左側のページ",
@@ -2708,6 +2717,7 @@ function updateSplitViewStatus() {
   const visible = Boolean(state.splitView);
   panel.hidden = false;
   panel.classList.toggle("is-split", visible);
+  panel.classList.toggle("is-background-split", Boolean(visible && !state.splitView.pairIsActive));
   document.body.classList.toggle("split-view-active", Boolean(state.splitView));
   if (!visible) {
     $("#splitViewState").textContent = "OFF";
@@ -2720,7 +2730,7 @@ function updateSplitViewStatus() {
     renderOpenTabs();
     return;
   }
-  $("#splitViewState").textContent = "分割中";
+  $("#splitViewState").textContent = state.splitView.pairIsActive ? "分割中" : "分割あり";
   $("#splitLeftTab").disabled = false;
   $("#splitRightTab").disabled = false;
   $("#splitLeftTitle").textContent = state.splitView.leftTitle;
