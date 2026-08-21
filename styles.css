@@ -579,6 +579,11 @@ dialog input:focus, dialog select:focus, dialog textarea:focus { border-color: v
 .background-controls output { color: var(--accent); font-size: 11px; }
 .background-controls input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); }
 .background-controls select { grid-column: 1 / -1; }
+.background-bulk-adjust { display: grid; margin-top: 13px !important; padding: 11px 12px; grid-template-columns: minmax(0, 1fr) auto !important; align-items: center; gap: 10px; border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: 11px; background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+.background-bulk-adjust > span { display: grid; min-width: 0; }
+.background-bulk-adjust strong { color: var(--ink); font-size: 11px; }
+.background-bulk-adjust small { color: var(--muted); font-size: 9px; line-height: 1.4; }
+.background-bulk-adjust input { width: 18px; height: 18px; accent-color: var(--accent); }
 .appearance-controls { display: grid; gap: 10px; margin-top: 16px; }
 .settings-group { display: grid; gap: 11px; padding: 13px; border: 1px solid color-mix(in srgb, var(--line) 76%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--bg) 58%, transparent); }
 .settings-live-preview { position: sticky; z-index: 6; top: 0; gap: 7px; border-color: color-mix(in srgb, var(--accent) 42%, var(--line)); background: color-mix(in srgb, var(--bg) 88%, transparent); box-shadow: 0 7px 20px rgba(22, 34, 28, .12); backdrop-filter: blur(14px); }

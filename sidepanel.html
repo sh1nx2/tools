@@ -272,6 +272,10 @@
         <label>横位置 <output id="positionXOutput">50%</output><input id="backgroundPositionX" type="range" min="0" max="100" value="50"></label>
         <label>縦位置 <output id="positionYOutput">0%</output><input id="backgroundPositionY" type="range" min="-100" max="100" value="0"></label>
       </div>
+      <label class="background-bulk-adjust toggle-label">
+        <span><strong>調整値をすべての背景へ反映</strong><small>画像はそのまま、表示基準・透明度・拡大縮小・位置を統一します</small></span>
+        <input id="applyBackgroundAdjustmentsToAll" type="checkbox">
+      </label>
       <div class="dialog-actions">
         <button id="removeBackgroundButton" class="text-button danger-button" type="button">背景を削除</button>
         <span class="action-spacer"></span>

@@ -945,6 +945,7 @@ async function applyBackground() {
 
 function openBackgroundDialog() {
   renderBackgroundTargets();
+  $("#applyBackgroundAdjustmentsToAll").checked = false;
   const backgroundKey = getActiveBackgroundKey();
   $("#backgroundTarget").value = backgroundKey || "__all__";
   loadBackgroundTarget(backgroundKey);
@@ -1495,17 +1496,35 @@ async function resizeBackgroundImage(file) {
 async function saveBackground() {
   const backgroundKey = $("#backgroundModeRow").dataset.backgroundKey;
   state.backgroundTransition = $("#backgroundTransition").value;
+  const editedSettings = readBackgroundEditor();
   if (backgroundKey) {
     if ($("#backgroundMode").value === "inherit") delete state.genreBackgrounds[backgroundKey];
-    else state.genreBackgrounds[backgroundKey] = readBackgroundEditor();
-    await chrome.storage.local.set({ genreBackgrounds: state.genreBackgrounds, backgroundTransition: state.backgroundTransition });
+    else state.genreBackgrounds[backgroundKey] = editedSettings;
   } else {
-    state.background = readBackgroundEditor();
-    await chrome.storage.local.set({ background: state.background, backgroundTransition: state.backgroundTransition });
+    state.background = editedSettings;
   }
+  const applyToAll = $("#applyBackgroundAdjustmentsToAll").checked;
+  if (applyToAll) {
+    const adjustments = pickBackgroundAdjustments(editedSettings);
+    state.background = { ...state.background, ...adjustments };
+    state.genreBackgrounds = Object.fromEntries(Object.entries(state.genreBackgrounds).map(([key, settings]) => [key, { ...settings, ...adjustments }]));
+    state.backgroundPresetAssignments = {};
+  }
+  await chrome.storage.local.set({ background: state.background, genreBackgrounds: state.genreBackgrounds, backgroundTransition: state.backgroundTransition, backgroundPresetAssignments: state.backgroundPresetAssignments });
   applyBackground();
   $("#backgroundDialog").close();
-  showToast(backgroundKey ? "専用背景の設定を保存しました" : "共通背景を保存しました");
+  showToast(applyToAll ? "調整値をすべての背景へ反映しました" : backgroundKey ? "専用背景の設定を保存しました" : "共通背景を保存しました");
+}
+
+function pickBackgroundAdjustments(settings) {
+  return {
+    opacity: settings.opacity,
+    zoom: settings.zoom,
+    x: settings.x,
+    y: settings.y,
+    fit: settings.fit,
+    layoutVersion: 2
+  };
 }
 
 async function removeBackground() {
