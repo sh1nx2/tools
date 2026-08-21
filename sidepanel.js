@@ -503,22 +503,22 @@ function scheduleBookmarkDragCleanup() {
 }
 
 function autoScrollBookmarkDrag(event) {
-  if (!draggedBookmarkId) return;
+  if (!draggedBookmarkId && !draggedFolder) return;
   bookmarkDragPointerY = event.clientY;
   if (!bookmarkAutoScrollFrame) bookmarkAutoScrollFrame = requestAnimationFrame(runBookmarkAutoScroll);
 }
 
 function runBookmarkAutoScroll() {
   bookmarkAutoScrollFrame = 0;
-  if (!draggedBookmarkId || bookmarkDragPointerY === null) return;
-  const edge = Math.min(140, Math.max(90, window.innerHeight * .24));
+  if ((!draggedBookmarkId && !draggedFolder) || bookmarkDragPointerY === null) return;
+  const edge = Math.min(170, Math.max(110, window.innerHeight * .27));
   const topDistance = edge - bookmarkDragPointerY;
   const bottomDistance = bookmarkDragPointerY - (window.innerHeight - edge);
   const distance = topDistance > 0 ? -topDistance : bottomDistance > 0 ? bottomDistance : 0;
   if (!distance) return;
   const strength = Math.min(1, Math.abs(distance) / edge);
   const previousScrollY = window.scrollY;
-  window.scrollBy(0, Math.sign(distance) * Math.round(6 + strength * 28));
+  window.scrollBy(0, Math.sign(distance) * Math.round(7 + strength * 34));
   if (window.scrollY === previousScrollY) return;
   bookmarkAutoScrollFrame = requestAnimationFrame(runBookmarkAutoScroll);
 }
@@ -1855,6 +1855,7 @@ function render() {
         heading.classList.remove("dragging");
         document.querySelectorAll(".drop-target, .folder-drop-zone.active").forEach((el) => el.classList.remove("drop-target", "active"));
         draggedFolder = null;
+        stopDragAutoScroll();
         document.body.classList.remove("folder-dragging");
         setTimeout(() => { folderWasDragged = false; }, 0);
       });
@@ -2621,11 +2622,15 @@ async function moveBookmarkToFolder(bookmarkId, folder, appendToEnd = false) {
 
 function clearBookmarkDragState() {
   draggedBookmarkId = null;
+  stopDragAutoScroll();
+  document.body.classList.remove("bookmark-dragging");
+  document.querySelectorAll(".drop-target, .folder-drop-zone.active").forEach((element) => element.classList.remove("drop-target", "active"));
+}
+
+function stopDragAutoScroll() {
   bookmarkDragPointerY = null;
   if (bookmarkAutoScrollFrame) cancelAnimationFrame(bookmarkAutoScrollFrame);
   bookmarkAutoScrollFrame = 0;
-  document.body.classList.remove("bookmark-dragging");
-  document.querySelectorAll(".drop-target, .folder-drop-zone.active").forEach((element) => element.classList.remove("drop-target", "active"));
 }
 
 function getDroppedBookmarkId(event) {
