@@ -159,7 +159,7 @@ async function init() {
   state.eventSchedule = normalizeEventSchedule(saved.eventSchedule);
   state.gameWithLastFetchedAt = Number(saved.gameWithLastFetchedAt) || state.eventSchedule?.fetchedAt || 0;
   await refreshTopSites();
-  await refreshOpenTabs(false);
+  await refreshOpenTabs();
   if (saved.background && saved.background.layoutVersion !== 2) {
     state.background.y = Number(saved.background.y ?? 50) - 50;
     state.background.layoutVersion = 2;
@@ -309,7 +309,7 @@ function bindEvents() {
   chrome.tabs.onActivated.addListener(async () => { await refreshCurrentUrl(); scheduleOpenTabsRefresh(); });
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (tab.active && changeInfo.url) refreshCurrentUrl();
-    if (tabShelfOpen && (changeInfo.title !== undefined || changeInfo.url !== undefined || changeInfo.status !== undefined || changeInfo.audible !== undefined || changeInfo.pinned !== undefined || changeInfo.mutedInfo !== undefined)) scheduleOpenTabsRefresh();
+    if (changeInfo.title !== undefined || changeInfo.url !== undefined || changeInfo.status !== undefined || changeInfo.audible !== undefined || changeInfo.pinned !== undefined || changeInfo.mutedInfo !== undefined) scheduleOpenTabsRefresh();
   });
   chrome.tabs.onCreated.addListener(scheduleOpenTabsRefresh);
   chrome.tabs.onRemoved.addListener(scheduleOpenTabsRefresh);
@@ -333,15 +333,12 @@ function bindEvents() {
 
 async function toggleTabShelf(forceOpen = !tabShelfOpen) {
   tabShelfOpen = Boolean(forceOpen);
-  const panel = $("#tabShelfPanel");
-  panel.hidden = !tabShelfOpen;
   $("#tabShelfButton").classList.toggle("active", tabShelfOpen);
   $("#tabShelfButton").setAttribute("aria-expanded", String(tabShelfOpen));
   $("#tabShelfButton").setAttribute("aria-label", tabShelfOpen ? "タブ一覧を閉じる" : "開いているタブを表示");
   document.body.classList.toggle("tab-shelf-open", tabShelfOpen);
-  if (!tabShelfOpen) return;
   await refreshOpenTabs();
-  $("#tabSearchInput").focus();
+  if (tabShelfOpen) $("#tabSearchInput").focus();
 }
 
 function scheduleOpenTabsRefresh() {
@@ -357,7 +354,7 @@ async function refreshOpenTabs(shouldRender = true) {
     state.openTabs = [];
   }
   $("#tabShelfCount").textContent = String(state.openTabs.length);
-  if (shouldRender && tabShelfOpen) renderOpenTabs();
+  if (shouldRender) renderOpenTabs();
 }
 
 function renderOpenTabs() {
