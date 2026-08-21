@@ -314,8 +314,8 @@ function bindEvents() {
   });
   chrome.tabs.onActivated.addListener(async () => { await refreshCurrentUrl(); scheduleOpenTabsRefresh(); });
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    if (tab.active && changeInfo.url) refreshCurrentUrl();
-    if (changeInfo.title !== undefined || changeInfo.url !== undefined || changeInfo.status !== undefined || changeInfo.audible !== undefined || changeInfo.pinned !== undefined || changeInfo.mutedInfo !== undefined) scheduleOpenTabsRefresh();
+    if ((tab.active && changeInfo.url) || changeInfo.splitViewId !== undefined) refreshCurrentUrl();
+    if (changeInfo.title !== undefined || changeInfo.url !== undefined || changeInfo.status !== undefined || changeInfo.audible !== undefined || changeInfo.pinned !== undefined || changeInfo.mutedInfo !== undefined || changeInfo.splitViewId !== undefined) scheduleOpenTabsRefresh();
   });
   chrome.tabs.onCreated.addListener(scheduleOpenTabsRefresh);
   chrome.tabs.onRemoved.addListener(scheduleOpenTabsRefresh);
@@ -2692,12 +2692,23 @@ async function refreshCurrentUrl(shouldRender = true) {
 function updateSplitViewStatus() {
   const panel = $("#splitViewStatus");
   const visible = Boolean(state.splitView);
-  panel.hidden = !visible;
+  panel.hidden = false;
+  panel.classList.toggle("is-split", visible);
   document.body.classList.toggle("split-view-active", Boolean(state.splitView));
   if (!visible) {
+    $("#splitViewState").textContent = "通常";
+    $("#splitLeftTitle").textContent = "現在のタブ";
+    $("#splitRightTitle").textContent = "分割なし";
+    $("#splitLeftTab").classList.remove("active");
+    $("#splitRightTab").classList.remove("active");
+    $("#splitLeftTab").disabled = true;
+    $("#splitRightTab").disabled = true;
     renderOpenTabs();
     return;
   }
+  $("#splitViewState").textContent = "分割中";
+  $("#splitLeftTab").disabled = false;
+  $("#splitRightTab").disabled = false;
   $("#splitLeftTitle").textContent = state.splitView.leftTitle;
   $("#splitRightTitle").textContent = state.splitView.rightTitle;
   $("#splitLeftTab").title = `左側：${state.splitView.leftTitle}`;

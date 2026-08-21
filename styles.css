@@ -189,15 +189,19 @@ body[data-genre-scroll="arrows"] .filter-scroll-shell.has-overflow { display: gr
 body[data-genre-scroll="arrows"] .filter-scroll-shell.has-overflow .filter-scroll-arrow { display: block; }
 body[data-genre-scroll="arrows"] .filter-scroll-shell.has-overflow .filter-bar { padding-right: 2px; padding-left: 2px; }
 .normal-event-panel { margin: 2px 18px 8px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); border-radius: 12px; background: color-mix(in srgb, var(--surface) 66%, transparent); box-shadow: 0 4px 15px rgba(20, 32, 27, .08); backdrop-filter: blur(8px); }
-.split-view-status { display: grid; grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr); align-items: center; gap: 4px; margin: 2px 18px 8px; padding: 5px; border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: 11px; background: color-mix(in srgb, var(--surface) 58%, transparent); backdrop-filter: blur(8px); }
+.split-view-status { display: grid; grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr); align-items: center; gap: 4px; margin: 2px 18px 8px; padding: 5px; border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); border-radius: 11px; background: color-mix(in srgb, var(--surface) 48%, transparent); backdrop-filter: blur(8px); transition: border-color var(--motion-duration), background var(--motion-duration), box-shadow var(--motion-duration); }
+.split-view-status.is-split { border-color: color-mix(in srgb, var(--accent) 62%, var(--line)); background: color-mix(in srgb, var(--accent) 9%, var(--surface)); box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 14%, transparent), inset 0 0 0 1px color-mix(in srgb, var(--accent) 14%, transparent); }
 .split-view-status[hidden], .hide-split-view-controls .split-view-status { display: none; }
-.split-view-status > i { color: var(--muted); font-size: 12px; font-style: normal; text-align: center; }
+.split-view-state { display: grid; min-height: 24px; place-items: center; border-radius: 7px; color: var(--muted); font-size: 8px; font-weight: 850; text-align: center; }
+.split-view-status.is-split .split-view-state { background: var(--accent); color: var(--action-text); box-shadow: 0 2px 7px color-mix(in srgb, var(--accent) 25%, transparent); }
 .split-view-tab { display: grid; min-width: 0; gap: 1px; border: 1px solid transparent; border-radius: 8px; padding: 5px 7px; background: transparent; color: var(--muted); cursor: pointer; text-align: left; }
 .split-view-tab small { font-size: 8px; font-weight: 800; }
 .split-view-tab.active small::after { content: "・操作中"; }
 .split-view-tab span { overflow: hidden; font-size: 10px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .split-view-tab.active { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); background: color-mix(in srgb, var(--accent) 13%, var(--surface)); color: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent); }
 .split-view-tab:not(.active):hover { background: color-mix(in srgb, var(--accent) 8%, transparent); color: var(--ink); }
+.split-view-tab:disabled { cursor: default; opacity: .58; }
+.split-view-tab:disabled:hover { background: transparent; color: var(--muted); }
 .normal-event-panel[hidden], .hide-normal-event .normal-event-panel { display: none; }
 .normal-event-summary { position: relative; display: grid; width: 100%; grid-template-columns: minmax(0, 1fr) auto 16px; align-items: center; gap: 8px; border: 0; padding: 8px 10px; background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
 .normal-event-summary > span { display: flex; min-width: 0; align-items: baseline; gap: 7px; }
