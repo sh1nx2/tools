@@ -1,0 +1,32 @@
+{
+  "bookmarks": [
+    { "id": "general-google", "title": "Google", "url": "https://www.google.com/", "folder": "検索・情報", "genreId": "general-daily", "favorite": true, "iconPreset": "search", "customIcon": "", "createdAt": 0, "lastOpenedAt": 0, "openCount": 0 },
+    { "id": "general-gmail", "title": "Gmail", "url": "https://mail.google.com/", "folder": "コミュニケーション", "genreId": "general-daily", "favorite": true, "iconPreset": "mail", "customIcon": "", "createdAt": 0, "lastOpenedAt": 0, "openCount": 0 },
+    { "id": "general-youtube", "title": "YouTube", "url": "https://www.youtube.com/", "folder": "動画・音楽", "genreId": "general-daily", "favorite": true, "iconPreset": "video", "customIcon": "", "createdAt": 0, "lastOpenedAt": 0, "openCount": 0 },
+    { "id": "general-maps", "title": "Google マップ", "url": "https://www.google.com/maps/", "folder": "検索・情報", "genreId": "general-daily", "favorite": false, "iconPreset": "map", "customIcon": "", "createdAt": 0, "lastOpenedAt": 0, "openCount": 0 },
+    { "id": "general-drive", "title": "Google Drive", "url": "https://drive.google.com/", "folder": "仕事", "genreId": "general-work", "favorite": true, "iconPreset": "cloud", "customIcon": "", "createdAt": 0, "lastOpenedAt": 0, "openCount": 0 },
+    { "id": "general-calendar", "title": "Google Calendar", "url": "https://calendar.google.com/", "folder": "仕事", "genreId": "general-work", "favorite": false, "iconPreset": "calendar", "customIcon": "", "createdAt": 0, "lastOpenedAt": 0, "openCount": 0 },
+    { "id": "general-docs", "title": "Google ドキュメント", "url": "https://docs.google.com/document/", "folder": "仕事", "genreId": "general-work", "favorite": false, "iconPreset": "document", "customIcon": "", "createdAt": 0, "lastOpenedAt": 0, "openCount": 0 },
+    { "id": "general-wikipedia", "title": "Wikipedia", "url": "https://ja.wikipedia.org/", "folder": "調べもの", "genreId": "general-work", "favorite": false, "iconPreset": "book", "customIcon": "", "createdAt": 0, "lastOpenedAt": 0, "openCount": 0 },
+    { "id": "general-deepl", "title": "DeepL翻訳", "url": "https://www.deepl.com/translator", "folder": "調べもの", "genreId": "general-work", "favorite": false, "iconPreset": "web", "customIcon": "", "createdAt": 0, "lastOpenedAt": 0, "openCount": 0 },
+    { "id": "general-amazon", "title": "Amazon", "url": "https://www.amazon.co.jp/", "folder": "買い物", "genreId": "general-life", "favorite": false, "iconPreset": "cart", "customIcon": "", "createdAt": 0, "lastOpenedAt": 0, "openCount": 0 },
+    { "id": "general-rakuten", "title": "楽天市場", "url": "https://www.rakuten.co.jp/", "folder": "買い物", "genreId": "general-life", "favorite": false, "iconPreset": "shop", "customIcon": "", "createdAt": 0, "lastOpenedAt": 0, "openCount": 0 },
+    { "id": "general-weather", "title": "Yahoo!天気", "url": "https://weather.yahoo.co.jp/weather/", "folder": "生活情報", "genreId": "general-life", "favorite": false, "iconPreset": "cloud", "customIcon": "", "createdAt": 0, "lastOpenedAt": 0, "openCount": 0 }
+  ],
+  "genres": [
+    { "id": "general-daily", "name": "日常", "viewMode": "icons", "iconColumns": 3 },
+    { "id": "general-work", "name": "仕事・学習", "viewMode": "list", "iconColumns": 3 },
+    { "id": "general-life", "name": "買い物・生活", "viewMode": "list", "iconColumns": 3 }
+  ],
+  "favoriteTabIndex": 1,
+  "folderOrder": ["検索・情報", "コミュニケーション", "動画・音楽", "仕事", "調べもの", "買い物", "生活情報", "未分類"],
+  "collapsedFolders": [],
+  "theme": "light",
+  "homeBookmarkId": null,
+  "appearance": { "actionColor": "#215c49", "bookmarkOpacity": 66, "useThemeCards": false, "cardMaterial": "glass", "tileColumns": 2, "showHomeButton": false, "showDeleteButton": true, "showSplitViewControls": true, "actionMenuPosition": "bottom", "showTabRail": true, "tabRailSide": "left", "searchEngine": "web", "searchSplitSide": "left", "motionIntensity": "medium", "interactionStyle": "lift", "viewTransition": "fade", "genreScrollStyle": "slim", "soundEnabled": false, "soundTheme": "wood", "soundVolume": 40, "showBackgroundOnlyButton": false, "showBackgroundClock": true, "showEventInNormalView": false, "backgroundClockSize": 69, "backgroundClockPositionX": 50, "backgroundClockPositionY": 5.5 },
+  "eventSchedule": null,
+  "gameWithLastFetchedAt": 0,
+  "background": { "image": "", "opacity": 18, "zoom": 100, "x": 50, "y": 0, "fit": "height", "layoutVersion": 2 },
+  "genreBackgrounds": {},
+  "backgroundTransition": "crossfade"
+}

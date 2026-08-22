@@ -137,10 +137,14 @@ async function init() {
   const firstLaunch = !Array.isArray(saved.bookmarks);
   if (firstLaunch) {
     let packagedDefaults = {};
+    let generalDefaults = {};
     try { packagedDefaults = await fetch(chrome.runtime.getURL("defaults.json")).then((response) => response.json()); }
     catch (error) { console.warn("初期データを読み込めませんでした", error); }
-    const useTemplate = await chooseInitialSetup();
-    const initialData = useTemplate && Array.isArray(packagedDefaults.bookmarks) ? packagedDefaults : {
+    try { generalDefaults = await fetch(chrome.runtime.getURL("defaults-general.json")).then((response) => response.json()); }
+    catch (error) { console.warn("一般向け初期データを読み込めませんでした", error); }
+    const initialChoice = await chooseInitialSetup();
+    const selectedDefaults = initialChoice === "granblue" ? packagedDefaults : initialChoice === "general" ? generalDefaults : null;
+    const initialData = Array.isArray(selectedDefaults?.bookmarks) ? selectedDefaults : {
       bookmarks: [], genres: [], favoriteTabIndex: 0, folderOrder: [], collapsedFolders: [],
       theme: "light", homeBookmarkId: null, appearance: { ...DEFAULT_APPEARANCE },
       eventSchedule: null, gameWithLastFetchedAt: 0, background: { ...DEFAULT_BACKGROUND },
@@ -189,14 +193,15 @@ function chooseInitialSetup() {
   return new Promise((resolve) => {
     const dialog = $("#initialSetupDialog");
     const preventCancel = (event) => event.preventDefault();
-    const finish = (useTemplate) => {
+    const finish = (choice) => {
       dialog.removeEventListener("cancel", preventCancel);
       dialog.close();
-      resolve(useTemplate);
+      resolve(choice);
     };
     dialog.addEventListener("cancel", preventCancel);
-    $("#startWithTemplateButton").addEventListener("click", () => finish(true), { once: true });
-    $("#startEmptyButton").addEventListener("click", () => finish(false), { once: true });
+    $("#startGeneralTemplateButton").addEventListener("click", () => finish("general"), { once: true });
+    $("#startWithTemplateButton").addEventListener("click", () => finish("granblue"), { once: true });
+    $("#startEmptyButton").addEventListener("click", () => finish("empty"), { once: true });
     dialog.showModal();
   });
 }
