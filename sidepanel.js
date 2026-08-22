@@ -128,6 +128,27 @@ function normalizeGenre(genre) {
   return { ...genre, id: String(genre.id), name: String(genre.name), viewMode: genre.viewMode === "icons" ? "icons" : "list", iconColumns };
 }
 
+function createEmptyTemplate() {
+  return {
+    bookmarks: [], genres: [], favoriteTabIndex: 0, folderOrder: [], collapsedFolders: [],
+    theme: "light", homeBookmarkId: null, appearance: { ...DEFAULT_APPEARANCE },
+    eventSchedule: null, gameWithLastFetchedAt: 0, background: { ...DEFAULT_BACKGROUND },
+    genreBackgrounds: {}, backgroundTransition: "crossfade"
+  };
+}
+
+async function loadSetupTemplate(choice) {
+  if (choice === "empty") return createEmptyTemplate();
+  const fileName = choice === "granblue" ? "defaults.json" : "defaults-general.json";
+  try {
+    const defaults = await fetch(chrome.runtime.getURL(fileName)).then((response) => response.json());
+    return Array.isArray(defaults?.bookmarks) ? defaults : createEmptyTemplate();
+  } catch (error) {
+    console.warn("初期データを読み込めませんでした", error);
+    return createEmptyTemplate();
+  }
+}
+
 async function init() {
   const appVersion = chrome.runtime.getManifest().version;
   $("#topAppVersion").textContent = `v${appVersion}`;
@@ -136,20 +157,8 @@ async function init() {
   let saved = await chrome.storage.local.get(["bookmarks", "theme", "homeBookmarkId", "collapsedFolders", "folderOrder", "genres", "favoriteTabIndex", "background", "genreBackgrounds", "backgroundTransition", "backgroundPresets", "backgroundPresetAssignments", "appearance", "eventSchedule", "gameWithLastFetchedAt", "tutorialSeen"]);
   const firstLaunch = !Array.isArray(saved.bookmarks);
   if (firstLaunch) {
-    let packagedDefaults = {};
-    let generalDefaults = {};
-    try { packagedDefaults = await fetch(chrome.runtime.getURL("defaults.json")).then((response) => response.json()); }
-    catch (error) { console.warn("初期データを読み込めませんでした", error); }
-    try { generalDefaults = await fetch(chrome.runtime.getURL("defaults-general.json")).then((response) => response.json()); }
-    catch (error) { console.warn("一般向け初期データを読み込めませんでした", error); }
     const initialChoice = await chooseInitialSetup();
-    const selectedDefaults = initialChoice === "granblue" ? packagedDefaults : initialChoice === "general" ? generalDefaults : null;
-    const initialData = Array.isArray(selectedDefaults?.bookmarks) ? selectedDefaults : {
-      bookmarks: [], genres: [], favoriteTabIndex: 0, folderOrder: [], collapsedFolders: [],
-      theme: "light", homeBookmarkId: null, appearance: { ...DEFAULT_APPEARANCE },
-      eventSchedule: null, gameWithLastFetchedAt: 0, background: { ...DEFAULT_BACKGROUND },
-      genreBackgrounds: {}, backgroundTransition: "crossfade"
-    };
+    const initialData = await loadSetupTemplate(initialChoice);
     saved = { ...initialData, ...saved, backgroundPresets: [], backgroundPresetAssignments: {}, tutorialSeen: false };
     await chrome.storage.local.set(saved);
   }
@@ -189,21 +198,64 @@ async function init() {
   setInterval(updateBackgroundClock, 1000);
 }
 
-function chooseInitialSetup() {
+function chooseInitialSetup(allowCancel = false) {
   return new Promise((resolve) => {
     const dialog = $("#initialSetupDialog");
     const preventCancel = (event) => event.preventDefault();
+    const generalButton = $("#startGeneralTemplateButton");
+    const granblueButton = $("#startWithTemplateButton");
+    const emptyButton = $("#startEmptyButton");
+    const cancelButton = $("#cancelInitialSetupButton");
+    $("#initialSetupTitle").textContent = allowCancel ? "テンプレートを選び直す" : "使い方に合わせて始める";
+    $("#initialSetupDescription").textContent = allowCancel
+      ? "選択した構成でブックマーク、ジャンル、表示設定を置き換えます。"
+      : "開始後もブックマークやジャンル、設定は自由に変更できます。";
+    cancelButton.hidden = !allowCancel;
+    const cleanup = () => {
+      dialog.removeEventListener("cancel", handleCancel);
+      generalButton.removeEventListener("click", chooseGeneral);
+      granblueButton.removeEventListener("click", chooseGranblue);
+      emptyButton.removeEventListener("click", chooseEmpty);
+      cancelButton.removeEventListener("click", handleCancel);
+    };
     const finish = (choice) => {
-      dialog.removeEventListener("cancel", preventCancel);
+      cleanup();
       dialog.close();
       resolve(choice);
     };
-    dialog.addEventListener("cancel", preventCancel);
-    $("#startGeneralTemplateButton").addEventListener("click", () => finish("general"), { once: true });
-    $("#startWithTemplateButton").addEventListener("click", () => finish("granblue"), { once: true });
-    $("#startEmptyButton").addEventListener("click", () => finish("empty"), { once: true });
+    const handleCancel = (event) => {
+      if (!allowCancel) return preventCancel(event);
+      event.preventDefault();
+      finish(null);
+    };
+    const chooseGeneral = () => finish("general");
+    const chooseGranblue = () => finish("granblue");
+    const chooseEmpty = () => finish("empty");
+    dialog.addEventListener("cancel", handleCancel);
+    generalButton.addEventListener("click", chooseGeneral);
+    granblueButton.addEventListener("click", chooseGranblue);
+    emptyButton.addEventListener("click", chooseEmpty);
+    cancelButton.addEventListener("click", handleCancel);
     dialog.showModal();
   });
+}
+
+async function reselectSetupTemplate() {
+  $("#settingsDialog").close();
+  const choice = await chooseInitialSetup(true);
+  if (!choice) return openSettingsDialog();
+  const labels = { general: "一般向けテンプレート", granblue: "グラブル向けテンプレート", empty: "空の状態" };
+  if (!confirm(`「${labels[choice]}」へ変更しますか？\n\n現在のブックマーク、ジャンル、表示設定は置き換わります。保存済みの背景プリセットは残ります。`)) {
+    return openSettingsDialog();
+  }
+  const template = await loadSetupTemplate(choice);
+  await chrome.storage.local.set({
+    ...template,
+    backgroundPresets: state.backgroundPresets,
+    backgroundPresetAssignments: {},
+    tutorialSeen: true
+  });
+  location.reload();
 }
 
 function bindEvents() {
@@ -280,6 +332,7 @@ function bindEvents() {
   });
   ["actionColor", "bookmarkOpacity", "soundVolume", "backgroundClockSize", "backgroundClockPositionX", "backgroundClockPositionY"].forEach((id) => $("#" + id).addEventListener("input", previewAppearanceSettings));
   $("#resetAppearanceButton").addEventListener("click", resetAppearancePreview);
+  $("#reselectTemplateButton").addEventListener("click", reselectSetupTemplate);
   $("#resetBackgroundClockPositionButton").addEventListener("click", resetBackgroundClockPosition);
   $("#openEventScheduleButton").addEventListener("click", openEventScheduleDialog);
   $("#saveAppearanceButton").addEventListener("click", saveAppearance);

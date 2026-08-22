@@ -414,9 +414,11 @@
           <p class="control-note">HOMEボタンはChromeのホームページ設定を補助します。古戦場の日程は通常画面のジャンル欄の下に表示されます。</p>
         </section>
         <section class="settings-group settings-reset-group">
-          <h3>初期設定に戻す</h3>
+          <h3>初期設定</h3>
           <p class="control-note">配色、ブックマーク表示、操作ボタン、時計を標準状態に戻します。</p>
           <button id="resetAppearanceButton" class="secondary-button" type="button">初期設定に戻す</button>
+          <p class="control-note">一般向け・グラブル向け・空の状態から、開始時の構成を選び直せます。</p>
+          <button id="reselectTemplateButton" class="secondary-button" type="button">テンプレートを選び直す</button>
         </section>
       </div>
       <div class="dialog-actions">
@@ -453,14 +455,14 @@
     <dialog id="initialSetupDialog" class="initial-setup-dialog">
       <div class="initial-setup-heading">
         <small>WELCOME TO SIDEMARKS</small>
-        <h2>使い方に合わせて始める</h2>
-        <p>開始後もブックマークやジャンル、設定は自由に変更できます。</p>
+        <h2 id="initialSetupTitle">使い方に合わせて始める</h2>
+        <p id="initialSetupDescription">開始後もブックマークやジャンル、設定は自由に変更できます。</p>
       </div>
       <div class="initial-setup-options">
         <button id="startGeneralTemplateButton" class="initial-setup-option recommended" type="button">
           <span class="initial-setup-icon">⌂</span>
           <strong>一般向けテンプレート</strong>
-          <small>日常、仕事・学習、買い物・生活の使いやすい構成で始めます。</small>
+          <small>日常、SNS、動画・音楽、買い物向けの使いやすい構成で始めます。</small>
           <b>おすすめ</b>
         </button>
         <button id="startWithTemplateButton" class="initial-setup-option" type="button">
@@ -473,6 +475,9 @@
           <strong>空の状態で始める</strong>
           <small>ブックマークやジャンルを登録せず、自分で最初から作成します。</small>
         </button>
+      </div>
+      <div class="dialog-actions">
+        <button id="cancelInitialSetupButton" class="secondary-button compact" type="button" hidden>キャンセル</button>
       </div>
     </dialog>
 
