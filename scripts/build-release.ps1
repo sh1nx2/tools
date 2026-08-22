@@ -15,7 +15,8 @@ $releaseFiles = @(
   "sidepanel.js",
   "styles.css",
   "defaults.json",
-  "defaults-general.json"
+  "defaults-general.json",
+  "README.md"
 )
 
 if (-not (Test-Path -LiteralPath $manifestPath)) {
