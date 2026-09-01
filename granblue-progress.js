@@ -35,6 +35,57 @@
     return master.groups.flatMap((group) => group.items.map((item) => ({ group, item, key: entityKey(group.id, item) })));
   }
 
+  function effectiveProgressEntities() {
+    return master.groups.flatMap((group) => {
+      if (group.progressAggregation !== "highestByAttribute") {
+        return group.items.map((item) => ({ group, item, key: entityKey(group.id, item), current: data.progress[entityKey(group.id, item)] }));
+      }
+      const attributes = [...new Set(group.items.map((item) => item.split("・")[0]))];
+      return attributes.map((attribute) => {
+        const variants = group.items.filter((item) => item.startsWith(attribute + "・"));
+        const best = variants.reduce((selected, item) => {
+          const current = data.progress[entityKey(group.id, item)];
+          return group.stages.indexOf(current) > group.stages.indexOf(selected.current) ? { item, current } : selected;
+        }, { item: variants[0], current: "未設定" });
+        return { group, item: attribute, key: entityKey(group.id, best.item), current: best.current };
+      });
+    });
+  }
+
+  function migrateLegacyOpusProgress() {
+    const group = master.groups.find((entry) => entry.id === "opus" && entry.progressAggregation === "highestByAttribute");
+    if (!group) return false;
+    let changed = false;
+    for (const attribute of ["火", "水", "土", "風", "光", "闇"]) {
+      const legacyKey = entityKey("opus", attribute);
+      if (data.progress[legacyKey]) {
+        for (const variant of ["マグナ", "神石"]) {
+          const nextKey = entityKey("opus", attribute + "・" + variant);
+          if (!data.progress[nextKey]) data.progress[nextKey] = data.progress[legacyKey];
+        }
+        delete data.progress[legacyKey];
+        changed = true;
+      }
+      if (data.goals[legacyKey]) {
+        for (const variant of ["マグナ", "神石"]) {
+          const nextKey = entityKey("opus", attribute + "・" + variant);
+          if (!data.goals[nextKey]) data.goals[nextKey] = structuredClone(data.goals[legacyKey]);
+        }
+        delete data.goals[legacyKey];
+        changed = true;
+      }
+      if (data.checks[legacyKey]) {
+        for (const variant of ["マグナ", "神石"]) {
+          const nextKey = entityKey("opus", attribute + "・" + variant);
+          if (!data.checks[nextKey]) data.checks[nextKey] = structuredClone(data.checks[legacyKey]);
+        }
+        delete data.checks[legacyKey];
+        changed = true;
+      }
+    }
+    return changed;
+  }
+
   function goalEntities(scope = materialScope) {
     return allEntities().flatMap((entity) => {
       const current = data.progress[entity.key];
@@ -90,11 +141,11 @@
   }
 
   function renderHome() {
-    const configured = allEntities().filter((entity) => data.progress[entity.key] && data.progress[entity.key] !== "未設定");
+    const configured = effectiveProgressEntities().filter((entity) => entity.current && entity.current !== "未設定");
     const goals = goalEntities("priority");
     const topGoals = goals.filter((goal) => goal.priority === "top");
     const stageProgress = configured.length
-      ? Math.round(configured.reduce((sum, entity) => sum + Math.max(0, entity.group.stages.indexOf(data.progress[entity.key]) - 1) / Math.max(1, entity.group.stages.length - 2), 0) / configured.length * 100)
+      ? Math.round(configured.reduce((sum, entity) => sum + Math.max(0, entity.group.stages.indexOf(entity.current) - 1) / Math.max(1, entity.group.stages.length - 2), 0) / configured.length * 100)
       : 0;
     const aggregate = aggregateMaterials("priority");
     const statuses = aggregate.items.map(materialStatus);
@@ -327,6 +378,7 @@
     }
     const saved = await chrome.storage.local.get(STORAGE_KEY);
     data = normalizeData(saved[STORAGE_KEY]);
+    if (migrateLegacyOpusProgress()) await saveData();
     $gb("#granblueProgressButton").addEventListener("click", () => {
       render();
       $gb("#granblueProgressDialog").showModal();
