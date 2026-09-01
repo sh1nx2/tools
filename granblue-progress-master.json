@@ -1,8 +1,11 @@
 {
-  "version": 2,
+  "version": 3,
   "sources": [
     "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/246381",
-    "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/390463"
+    "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/390463",
+    "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/146896",
+    "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/189686",
+    "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/525609"
   ],
   "materials": {
     "blue_paper": { "name": "碧麗の証", "trackingMode": "quantity", "important": true },
@@ -14,7 +17,38 @@
     "sunlight_stone": { "name": "金剛晶", "trackingMode": "quantity", "important": true },
     "world_idea": { "name": "世界のイデア", "trackingMode": "check", "important": false },
     "new_world_quartz": { "name": "ニューワールド・クォーツ", "trackingMode": "quantity", "important": true },
-    "damascus_crystal": { "name": "ダマスカス骸晶", "trackingMode": "quantity", "important": true }
+    "damascus_crystal": { "name": "ダマスカス骸晶", "trackingMode": "quantity", "important": true },
+    "gold_brick": { "name": "ヒヒイロカネ", "trackingMode": "quantity", "important": true },
+    "sand": { "name": "刻の流砂", "trackingMode": "quantity", "important": true },
+    "dark_crystal": { "name": "終末の暗晶", "trackingMode": "check", "important": false },
+    "dark_wing": { "name": "漆黒の棘翅", "trackingMode": "check", "important": false },
+    "cunning_horn": { "name": "狡知の魔角", "trackingMode": "check", "important": false },
+    "supreme_proof": { "name": "究竟の証", "trackingMode": "check", "important": false },
+    "magna2_anima:{attribute}": { "name": "{attribute}属性のマグナ2マグナアニマ", "trackingMode": "check", "important": false },
+    "dragon_jewel:{attribute}": { "name": "{attribute}属性の六竜竜珠", "trackingMode": "check", "important": false },
+    "weapon_element:{item}": { "name": "該当武器のエレメント（{item}）", "trackingMode": "check", "important": false },
+    "attribute_element:{attribute}": { "name": "{attribute}属性のエレメント", "trackingMode": "check", "important": false },
+    "black_feather": { "name": "終末を齎す黒羽", "trackingMode": "check", "important": false },
+    "revans:{attribute}": { "name": "{attribute}属性のレヴァンス素材", "trackingMode": "check", "important": false },
+    "bright:{attribute}": { "name": "{attribute}属性のブライト", "trackingMode": "check", "important": false },
+    "new_blessing:{attribute}": { "name": "{attribute}属性の新恩寵", "trackingMode": "check", "important": false },
+    "fire_halo": { "name": "火の光輪", "trackingMode": "check", "important": false },
+    "ultimate_crystal": { "name": "極理の結晶", "trackingMode": "check", "important": false },
+    "ultimate_memory": { "name": "アルテマメモリ", "trackingMode": "check", "important": false },
+    "true_dragon_scale": { "name": "真龍の金鱗", "trackingMode": "check", "important": false },
+    "silver_centrum": { "name": "銀天の輝き", "trackingMode": "check", "important": false },
+    "glory_proof": { "name": "栄光の証", "trackingMode": "check", "important": false },
+    "champion_proof": { "name": "覇者の証", "trackingMode": "check", "important": false },
+    "star_shine:{attribute}": { "name": "{attribute}属性の星の輝き", "trackingMode": "check", "important": false },
+    "dragon_unique:{attribute}": { "name": "{attribute}属性の六竜固有素材", "trackingMode": "check", "important": false },
+    "attribute_scale:{attribute}": { "name": "{attribute}属性の鱗", "trackingMode": "check", "important": false },
+    "malice_fragment": { "name": "マリス・フラグメント", "trackingMode": "check", "important": false },
+    "zenith_proof": { "name": "極致の証", "trackingMode": "check", "important": false },
+    "six_dragon_treasure:{attribute}": { "name": "{attribute}属性の六竜トレジャー", "trackingMode": "check", "important": false },
+    "versusia_horn": { "name": "ヴェルサシアの角", "trackingMode": "check", "important": false },
+    "samsara_flame": { "name": "輪廻の雷炎", "trackingMode": "check", "important": false },
+    "omega_unit": { "name": "オメガユニット", "trackingMode": "check", "important": false },
+    "singularity:{attribute}": { "name": "{attribute}属性の特異点", "trackingMode": "check", "important": false }
   },
   "groups": [
     {
@@ -53,21 +87,113 @@
       "progressAggregation": "highestByAttribute",
       "items": ["火・マグナ", "火・神石", "水・マグナ", "水・神石", "土・マグナ", "土・神石", "風・マグナ", "風・神石", "光・マグナ", "光・神石", "闇・マグナ", "闇・神石"],
       "stages": ["未設定", "未所持", "3凸", "4凸", "5凸", "Lv210", "Lv220", "Lv230", "Lv240", "Lv250"],
-      "recipes": {}
+      "recipes": {
+        "Lv210": [
+          { "materialId": "dark_crystal", "amount": 60 },
+          { "materialId": "dark_wing", "amount": 60 },
+          { "materialId": "cunning_horn", "amount": 60 },
+          { "materialId": "damascus_crystal", "amount": 20 },
+          { "materialId": "supreme_proof", "amount": 80 }
+        ],
+        "Lv220": [
+          { "materialId": "new_world_quartz", "amount": 20 },
+          { "materialId": "magna2_anima:{attribute}", "amount": 80 },
+          { "materialId": "dragon_jewel:{attribute}", "amount": 240 },
+          { "materialId": "weapon_element:{item}", "amount": 1200 },
+          { "materialId": "attribute_element:{attribute}", "amount": 1200 }
+        ],
+        "Lv230": [
+          { "materialId": "black_feather", "amount": 10 },
+          { "materialId": "revans:{attribute}", "amount": 60 },
+          { "materialId": "bright:{attribute}", "amount": 20 }
+        ],
+        "Lv240": [
+          { "materialId": "black_feather", "amount": 15 },
+          { "materialId": "new_blessing:{attribute}", "amount": 1 },
+          { "materialId": "blue_paper", "amount": 1 },
+          { "materialId": "weapon_element:{item}", "amount": 1200 },
+          { "materialId": "attribute_element:{attribute}", "amount": 1200 },
+          { "materialId": "fire_halo", "amount": 120 }
+        ],
+        "Lv250": [
+          { "materialId": "black_feather", "amount": 15 },
+          { "materialId": "ultimate_crystal", "amount": 15 },
+          { "materialId": "ultimate_memory", "amount": 15 },
+          { "materialId": "sand", "amount": 1 },
+          { "materialId": "gold_brick", "amount": 1 }
+        ]
+      }
     },
     {
       "id": "draconic",
       "name": "ドラポン",
       "items": ["火", "水", "土", "風", "光", "闇"],
-      "stages": ["未設定", "未所持", "3凸", "4凸", "5凸"],
-      "recipes": {}
+      "stages": ["未設定", "未所持", "3凸", "4凸", "5凸", "オリジン"],
+      "recipes": {
+        "3凸": [
+          { "materialId": "attribute_element:{attribute}", "amount": 666 },
+          { "materialId": "weapon_element:{item}", "amount": 500 },
+          { "materialId": "true_dragon_scale", "amount": 30 }
+        ],
+        "4凸": [
+          { "materialId": "true_dragon_scale", "amount": 30 },
+          { "materialId": "silver_centrum", "amount": 5 },
+          { "materialId": "glory_proof", "amount": 100 },
+          { "materialId": "champion_proof", "amount": 50 },
+          { "materialId": "star_shine:{attribute}", "amount": 30 }
+        ],
+        "5凸": [
+          { "materialId": "weapon_element:{item}", "amount": 200 },
+          { "materialId": "dragon_unique:{attribute}", "amount": 15 },
+          { "materialId": "damascus_crystal", "amount": 5 },
+          { "materialId": "attribute_scale:{attribute}", "amount": 350 },
+          { "materialId": "malice_fragment", "amount": 10 },
+          { "materialId": "supreme_proof", "amount": 10 }
+        ],
+        "オリジン": [
+          { "materialId": "weapon_element:{item}", "amount": 1000 },
+          { "materialId": "attribute_element:{attribute}", "amount": 1000 },
+          { "materialId": "damascus_crystal", "amount": 15 },
+          { "materialId": "zenith_proof", "amount": 10 },
+          { "materialId": "six_dragon_treasure:{attribute}", "amount": 100 },
+          { "materialId": "ultimate_crystal", "amount": 20 },
+          { "materialId": "sand", "amount": 1 }
+        ]
+      }
     },
     {
       "id": "destruction",
       "name": "破壊武器",
       "items": ["火", "水", "土", "風", "光", "闇"],
       "stages": ["未設定", "未所持", "3凸", "4凸", "5凸"],
-      "recipes": {}
+      "recipes": {
+        "3凸": [
+          { "materialId": "versusia_horn", "amount": 10 },
+          { "materialId": "ultimate_memory", "amount": 30 },
+          { "materialId": "omega_unit", "amount": 30 },
+          { "materialId": "sand", "amount": 2 }
+        ],
+        "4凸": [
+          { "materialId": "samsara_flame", "amount": 10 },
+          { "materialId": "versusia_horn", "amount": 20 },
+          { "materialId": "ultimate_crystal", "amount": 15 },
+          { "materialId": "black_feather", "amount": 15 },
+          { "materialId": "revans:{attribute}", "amount": 180 },
+          { "materialId": "attribute_element:{attribute}", "amount": 2000 },
+          { "materialId": "weapon_element:{item}", "amount": 2000 },
+          { "materialId": "sand", "amount": 3 }
+        ],
+        "5凸": [
+          { "materialId": "singularity:{attribute}", "amount": 1 },
+          { "materialId": "samsara_flame", "amount": 20 },
+          { "materialId": "versusia_horn", "amount": 30 },
+          { "materialId": "ultimate_crystal", "amount": 25 },
+          { "materialId": "black_feather", "amount": 25 },
+          { "materialId": "sand", "amount": 5 },
+          { "materialId": "new_world_quartz", "amount": 20 },
+          { "materialId": "gold_brick", "amount": 1 }
+        ]
+      }
     }
   ]
 }

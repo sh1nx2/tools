@@ -99,6 +99,21 @@
     });
   }
 
+  function resolveRequirement(requirement, goal) {
+    const attribute = goal.item.split("・")[0];
+    const replacements = { attribute, item: goal.item };
+    const materialId = requirement.materialId.replace(/\{(attribute|item)\}/g, (_, key) => replacements[key]);
+    return { ...requirement, materialId, definitionId: requirement.materialId, attribute, item: goal.item };
+  }
+
+  function materialDefinition(entry) {
+    const definition = master.materials[entry.definitionId || entry.materialId] || master.materials[entry.materialId] || { name: entry.materialId, trackingMode: "check", important: false };
+    return {
+      ...definition,
+      name: definition.name.replaceAll("{attribute}", entry.attribute || "").replaceAll("{item}", entry.item || "")
+    };
+  }
+
   function aggregateMaterials(scope = materialScope) {
     const materials = new Map();
     const incomplete = new Set();
@@ -113,8 +128,9 @@
           incomplete.add(goal.group.name + " " + goal.item + "：" + stage);
           continue;
         }
-        for (const requirement of recipe) {
-          const existing = materials.get(requirement.materialId) || { materialId: requirement.materialId, required: 0, goalKeys: new Set(), rank: 9 };
+        for (const rawRequirement of recipe) {
+          const requirement = resolveRequirement(rawRequirement, goal);
+          const existing = materials.get(requirement.materialId) || { materialId: requirement.materialId, definitionId: requirement.definitionId, attribute: requirement.attribute, item: requirement.item, required: 0, goalKeys: new Set(), rank: 9 };
           existing.required += Number(requirement.amount) || 0;
           existing.goalKeys.add(goal.key);
           existing.rank = Math.min(existing.rank, priorityRank[goal.priority] ?? 2);
@@ -123,13 +139,13 @@
       }
     }
     return {
-      items: [...materials.values()].sort((a, b) => a.rank - b.rank || Number(master.materials[b.materialId]?.important) - Number(master.materials[a.materialId]?.important) || master.materials[a.materialId]?.name.localeCompare(master.materials[b.materialId]?.name, "ja")),
+      items: [...materials.values()].sort((a, b) => a.rank - b.rank || Number(materialDefinition(b).important) - Number(materialDefinition(a).important) || materialDefinition(a).name.localeCompare(materialDefinition(b).name, "ja")),
       incomplete: [...incomplete]
     };
   }
 
   function materialStatus(entry) {
-    const material = master.materials[entry.materialId];
+    const material = materialDefinition(entry);
     const inventory = data.inventory[entry.materialId] || {};
     if (inventory.mode === "quantity" && Number.isFinite(Number(inventory.quantity)) && inventory.quantity !== "") {
       const owned = Math.max(0, Number(inventory.quantity));
@@ -211,12 +227,12 @@
     const aggregate = aggregateMaterials();
     const unknownCount = aggregate.items.filter((entry) => materialStatus(entry).kind === "unknown").length;
     $gb("#gbUncheckedBadge").textContent = unknownCount;
-    $gb("#gbCheckGeneralMaterialsButton").hidden = !aggregate.items.some((entry) => !master.materials[entry.materialId]?.important && materialStatus(entry).kind !== "done");
+    $gb("#gbCheckGeneralMaterialsButton").hidden = !aggregate.items.some((entry) => !materialDefinition(entry).important && materialStatus(entry).kind !== "done");
     $gb("#gbMaterialSummary").innerHTML = `
       <div class="gb-material-summary"><strong>必要素材 ${aggregate.items.length}種類</strong><span>未確認 ${unknownCount}種類</span>${bulkUndo ? '<button type="button" data-undo-material-check>取り消す</button>' : ""}</div>
       ${aggregate.incomplete.length ? `<details class="gb-master-notice"><summary>素材データ未登録の段階 ${aggregate.incomplete.length}件</summary><p>推測値は表示していません。</p><ul>${aggregate.incomplete.map((label) => `<li>${escapeHtml(label)}</li>`).join("")}</ul></details>` : ""}`;
     $gb("#gbMaterialList").innerHTML = aggregate.items.length ? aggregate.items.map((entry) => {
-      const material = master.materials[entry.materialId] || { name: entry.materialId, trackingMode: "check", important: false };
+      const material = materialDefinition(entry);
       const inventory = data.inventory[entry.materialId] || {};
       const mode = inventory.mode || "unknown";
       const status = materialStatus(entry);
@@ -346,7 +362,7 @@
   }
 
   async function checkAllGeneralMaterials() {
-    const entries = aggregateMaterials().items.filter((entry) => !master.materials[entry.materialId]?.important);
+    const entries = aggregateMaterials().items.filter((entry) => !materialDefinition(entry).important);
     if (!entries.length) return;
     bulkUndo = { checks: structuredClone(data.checks), inventory: structuredClone(data.inventory) };
     for (const entry of entries) {
