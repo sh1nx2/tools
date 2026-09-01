@@ -232,21 +232,18 @@
     const priorityMaterials = aggregateMaterials("priority").items;
     const priorityById = new Map(priorityMaterials.map((entry) => [entry.materialId, entry]));
     const allMaterials = aggregateMaterials("all").items;
-    $gb("#gbWidgetMetrics").innerHTML = `
-      <span><small>育成進捗</small><strong>${stageProgress}<i>%</i></strong></span>
-      <span><small>優先の必要素材</small><strong>${priorityMaterials.length}<i>種</i></strong></span>
-      <span><small>全体の必要素材</small><strong>${allMaterials.length}<i>種</i></strong></span>`;
+    $gb("#gbWidgetProgress").textContent = `進捗 ${stageProgress}%`;
     const favorites = allMaterials.filter((entry) => data.favoriteMaterials.includes(entry.materialId));
-    $gb("#gbWidgetDetails").innerHTML = favorites.length ? favorites.map((entry) => {
+    $gb("#gbWidgetDetails").innerHTML = favorites.length ? `<div class="gb-widget-detail-heading"><strong>お気に入り素材</strong><span><i>所持</i><i>優先</i><i>全体</i></span></div>${favorites.map((entry) => {
       const status = materialStatus(entry);
       const owned = status.owned ?? data.inventory[entry.materialId]?.quantity;
       const ownedValue = status.kind === "done" && owned === undefined ? "✓" : owned === undefined || owned === "" ? "—" : Number(owned).toLocaleString("ja-JP");
       const priorityRequired = priorityById.get(entry.materialId)?.required || 0;
       return `<button type="button" class="gb-widget-material" data-widget-material="${escapeHtml(entry.materialId)}">
-        <span class="gb-widget-material-info"><strong>★ ${escapeHtml(materialDefinition(entry).name)}</strong><small>必要数を優先・全体で比較</small></span>
-        <span class="gb-widget-needs"><b class="owned"><small>所持</small>${ownedValue}</b><b class="priority"><small>優先</small>${priorityRequired.toLocaleString("ja-JP")}</b><b><small>全体</small>${entry.required.toLocaleString("ja-JP")}</b></span>
+        <span class="gb-widget-material-info"><strong>★ ${escapeHtml(materialDefinition(entry).name)}</strong></span>
+        <span class="gb-widget-needs"><b class="owned">${ownedValue}</b><b class="priority">${priorityRequired.toLocaleString("ja-JP")}</b><b>${entry.required.toLocaleString("ja-JP")}</b></span>
       </button>`;
-    }).join("") : '<p class="gb-widget-empty">素材確認画面の☆から、ここに表示する素材を登録できます。</p>';
+    }).join("")}` : '<p class="gb-widget-empty">素材確認画面の☆から、ここに表示する素材を登録できます。</p>';
   }
 
   function renderGoals() {
