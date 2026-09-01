@@ -292,7 +292,9 @@
     });
     const unknownCount = aggregate.items.filter((entry) => materialStatus(entry).kind === "unknown").length;
     $gb("#gbUncheckedBadge").textContent = unknownCount;
-    $gb("#gbCheckGeneralMaterialsButton").hidden = !aggregate.items.some((entry) => !materialDefinition(entry).important && materialStatus(entry).kind !== "done");
+    const uncheckedConfirmationMaterials = aggregate.items.filter((entry) => materialDefinition(entry).trackingMode === "check" && materialStatus(entry).kind !== "done");
+    $gb("#gbCheckGeneralMaterialsButton").hidden = !uncheckedConfirmationMaterials.length;
+    $gb("#gbCheckGeneralMaterialsButton").textContent = `確認素材 ${uncheckedConfirmationMaterials.length}種類を一括で所持済みにする`;
     $gb("#gbMaterialSummary").innerHTML = `
       <div class="gb-material-summary"><strong>${scopeLabels[materialScope]}の必要素材 ${aggregate.items.length}種類</strong><span>未確認 ${unknownCount}種類</span>${bulkUndo ? '<button type="button" data-undo-material-check>取り消す</button>' : ""}</div>
       ${aggregate.incomplete.length ? `<details class="gb-master-notice"><summary>素材データ未登録の段階 ${aggregate.incomplete.length}件</summary><p>推測値は表示していません。</p><ul>${aggregate.incomplete.map((label) => `<li>${escapeHtml(label)}</li>`).join("")}</ul></details>` : ""}`;
@@ -454,7 +456,7 @@
   }
 
   async function checkAllGeneralMaterials() {
-    const entries = aggregateMaterials().items.filter((entry) => !materialDefinition(entry).important);
+    const entries = aggregateMaterials().items.filter((entry) => materialDefinition(entry).trackingMode === "check" && materialStatus(entry).kind !== "done");
     if (!entries.length) return;
     bulkUndo = { checks: structuredClone(data.checks), inventory: structuredClone(data.inventory) };
     for (const entry of entries) {
