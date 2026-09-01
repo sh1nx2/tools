@@ -227,20 +227,23 @@
     const stageProgress = configured.length
       ? Math.round(configured.reduce((sum, entity) => sum + Math.max(0, entity.group.stages.indexOf(entity.current) - 1) / Math.max(1, entity.group.stages.length - 2), 0) / configured.length * 100)
       : 0;
-    const priorityGoals = goalEntities("priority").length;
+    const priorityMaterials = aggregateMaterials("priority").items;
+    const priorityById = new Map(priorityMaterials.map((entry) => [entry.materialId, entry]));
     const allMaterials = aggregateMaterials("all").items;
-    const statuses = allMaterials.map(materialStatus);
-    const attention = statuses.filter((status) => status.kind !== "done").length;
     $gb("#gbWidgetMetrics").innerHTML = `
-      <span><small>育成進捗</small><strong>${stageProgress}%</strong></span>
-      <span><small>優先目標</small><strong>${priorityGoals}件</strong></span>
-      <span><small>要確認素材</small><strong>${attention}種</strong></span>`;
+      <span><small>育成進捗</small><strong>${stageProgress}<i>%</i></strong></span>
+      <span><small>優先の必要素材</small><strong>${priorityMaterials.length}<i>種</i></strong></span>
+      <span><small>全体の必要素材</small><strong>${allMaterials.length}<i>種</i></strong></span>`;
     const favorites = allMaterials.filter((entry) => data.favoriteMaterials.includes(entry.materialId));
     $gb("#gbWidgetDetails").innerHTML = favorites.length ? favorites.map((entry) => {
       const status = materialStatus(entry);
       const owned = status.owned ?? data.inventory[entry.materialId]?.quantity;
-      const detail = status.kind === "done" ? `所持 ${owned ?? "確認済み"} / 必要 ${entry.required}` : status.kind === "short" ? `所持 ${owned} / 必要 ${entry.required}（あと${status.shortage}）` : `必要 ${entry.required}・未確認`;
-      return `<button type="button" class="gb-widget-material" data-widget-material="${escapeHtml(entry.materialId)}"><strong>★ ${escapeHtml(materialDefinition(entry).name)}</strong><span>${detail}</span></button>`;
+      const ownedText = status.kind === "done" && owned === undefined ? "確認済み" : owned === undefined || owned === "" ? "未確認" : `所持 ${Number(owned).toLocaleString("ja-JP")}`;
+      const priorityRequired = priorityById.get(entry.materialId)?.required || 0;
+      return `<button type="button" class="gb-widget-material" data-widget-material="${escapeHtml(entry.materialId)}">
+        <span class="gb-widget-material-info"><strong>★ ${escapeHtml(materialDefinition(entry).name)}</strong><small>${ownedText}</small></span>
+        <span class="gb-widget-needs"><b><small>優先</small>${priorityRequired.toLocaleString("ja-JP")}</b><b><small>全体</small>${entry.required.toLocaleString("ja-JP")}</b></span>
+      </button>`;
     }).join("") : '<p class="gb-widget-empty">素材確認画面の☆から、ここに表示する素材を登録できます。</p>';
   }
 
