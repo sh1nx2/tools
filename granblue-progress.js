@@ -133,7 +133,9 @@
       ingot: '<path d="m7 7 10-2 4 10-14 4-4-9zM7 7l4 9M3 10l14-3"/>',
       sand: '<path d="M7 3h10M7 21h10M8 4c0 4 1 6 4 8-3 2-4 4-4 8M16 4c0 4-1 6-4 8 3 2 4 4 4 8"/>',
       flame: '<path d="M13 3c1 5-3 5-1 9 1-2 3-3 4-5 3 3 4 6 3 9-1 4-4 6-8 5-4-1-6-4-6-7 0-4 3-6 5-9 0 3 1 4 3 5"/>',
-      quartz: '<path d="m12 2 6 5-2 12-4 3-4-3L6 7zM6 7h12M9 7l3 15 3-15-3-5z"/>'
+      quartz: '<path d="m12 2 6 5-2 12-4 3-4-3L6 7zM6 7h12M9 7l3 15 3-15-3-5z"/>',
+      horn: '<path d="M5 19c5-2 6-7 5-13 5 3 7 7 5 13M5 19c4 1 8 1 12 0M10 6l2 3"/>',
+      feather: '<path d="M6 20c5-1 10-6 12-14-7 1-12 6-12 14ZM7 19l10-10M10 16l-3-1M13 13l-1-3"/>'
     };
     const content = icons[material.icon];
     return content ? `<span class="gb-material-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${content}</svg></span>` : "";
@@ -238,11 +240,11 @@
     $gb("#gbWidgetDetails").innerHTML = favorites.length ? favorites.map((entry) => {
       const status = materialStatus(entry);
       const owned = status.owned ?? data.inventory[entry.materialId]?.quantity;
-      const ownedText = status.kind === "done" && owned === undefined ? "確認済み" : owned === undefined || owned === "" ? "未確認" : `所持 ${Number(owned).toLocaleString("ja-JP")}`;
+      const ownedValue = status.kind === "done" && owned === undefined ? "✓" : owned === undefined || owned === "" ? "—" : Number(owned).toLocaleString("ja-JP");
       const priorityRequired = priorityById.get(entry.materialId)?.required || 0;
       return `<button type="button" class="gb-widget-material" data-widget-material="${escapeHtml(entry.materialId)}">
-        <span class="gb-widget-material-info"><strong>★ ${escapeHtml(materialDefinition(entry).name)}</strong><small>${ownedText}</small></span>
-        <span class="gb-widget-needs"><b><small>優先</small>${priorityRequired.toLocaleString("ja-JP")}</b><b><small>全体</small>${entry.required.toLocaleString("ja-JP")}</b></span>
+        <span class="gb-widget-material-info"><strong>★ ${escapeHtml(materialDefinition(entry).name)}</strong><small>必要数を優先・全体で比較</small></span>
+        <span class="gb-widget-needs"><b class="owned"><small>所持</small>${ownedValue}</b><b class="priority"><small>優先</small>${priorityRequired.toLocaleString("ja-JP")}</b><b><small>全体</small>${entry.required.toLocaleString("ja-JP")}</b></span>
       </button>`;
     }).join("") : '<p class="gb-widget-empty">素材確認画面の☆から、ここに表示する素材を登録できます。</p>';
   }
@@ -304,7 +306,7 @@
     $gb("#gbMaterialList").innerHTML = aggregate.items.length ? aggregate.items.map((entry) => {
       const material = materialDefinition(entry);
       const inventory = data.inventory[entry.materialId] || {};
-      const mode = inventory.mode || "unknown";
+      const mode = inventory.mode || (material.important ? "quantity" : "unknown");
       const status = materialStatus(entry);
       const statusText = status.kind === "unknown" ? "所持数を確認" : status.kind === "done" ? "✓ 必要数を確保" : "あと" + status.shortage;
       const allChecked = [...entry.goalKeys].every((goalKey) => data.checks[goalKey]?.[entry.materialId] === true);

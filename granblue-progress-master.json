@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "sources": [
     "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/246381",
     "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/390463",
@@ -28,7 +28,7 @@
     "dragon_jewel:{attribute}": { "name": "{attribute}属性の六竜竜珠", "trackingMode": "check", "important": false },
     "weapon_element:{item}": { "name": "該当武器のエレメント（{item}）", "trackingMode": "check", "important": false },
     "attribute_element:{attribute}": { "name": "{attribute}属性のエレメント", "trackingMode": "check", "important": false },
-    "black_feather": { "name": "終末を齎す黒羽", "trackingMode": "check", "important": false },
+    "black_feather": { "name": "終末を齎す黒羽", "trackingMode": "quantity", "important": true, "icon": "feather" },
     "revans:{attribute}": { "name": "{attribute}属性のレヴァンス素材", "trackingMode": "check", "important": false },
     "bright:{attribute}": { "name": "{attribute}属性のブライト", "trackingMode": "check", "important": false },
     "new_blessing:{attribute}": { "name": "{attribute}属性の新恩寵", "trackingMode": "check", "important": false },
@@ -45,7 +45,7 @@
     "malice_fragment": { "name": "マリス・フラグメント", "trackingMode": "check", "important": false },
     "zenith_proof": { "name": "極致の証", "trackingMode": "check", "important": false },
     "six_dragon_treasure:{attribute}": { "name": "{attribute}属性の六竜トレジャー", "trackingMode": "check", "important": false },
-    "versusia_horn": { "name": "ヴェルサシアの角", "trackingMode": "check", "important": false },
+    "versusia_horn": { "name": "ヴェルサシアの角", "trackingMode": "quantity", "important": true, "icon": "horn" },
     "samsara_flame": { "name": "輪廻の雷炎", "trackingMode": "quantity", "important": true, "icon": "flame" },
     "omega_unit": { "name": "オメガユニット", "trackingMode": "check", "important": false },
     "singularity:{attribute}": { "name": "{attribute}属性の特異点", "trackingMode": "check", "important": false }
