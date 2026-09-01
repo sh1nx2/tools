@@ -187,7 +187,7 @@
         return `<article class="gb-goal-row" data-entity-key="${escapeHtml(key)}" data-group-id="${escapeHtml(group.id)}">
           <strong>${escapeHtml(item)}</strong>
           <label>現在<select data-progress-current><option value="未設定">未設定</option>${group.stages.slice(1).map((stage) => `<option value="${escapeHtml(stage)}" ${current === stage ? "selected" : ""}>${escapeHtml(stage)}</option>`).join("")}</select></label>
-          <label>目標<select data-progress-target><option value="">目標なし</option>${targets}</select></label>
+          <label>目標<select data-progress-target><option value="">${escapeHtml(group.stages.at(-1))}（自動）</option>${targets}</select></label>
           <label>優先度<select data-progress-priority ${goal.target ? "" : "disabled"}><option value="normal" ${goal.priority === "normal" ? "selected" : ""}>通常</option><option value="priority" ${goal.priority === "priority" ? "selected" : ""}>優先</option><option value="top" ${goal.priority === "top" ? "selected" : ""}>最優先</option></select></label>
         </article>`;
       }).join("");
@@ -197,13 +197,13 @@
           <section class="gb-group-bulk" aria-label="${escapeHtml(group.name)}の一括設定">
             <strong>まとめて設定</strong>
             <div><label>現在<select data-bulk-current><option value="" selected disabled>選択</option>${bulkCurrentOptions}</select></label><button type="button" data-apply-group-bulk="current">適用</button></div>
-            <div><label>目標<select data-bulk-target><option value="">目標なし</option>${bulkTargetOptions}</select></label><button type="button" data-apply-group-bulk="target">適用</button></div>
+            <div><label>目標<select data-bulk-target><option value="">最終強化（自動）</option>${bulkTargetOptions}</select></label><button type="button" data-apply-group-bulk="target">適用</button></div>
             <div><label>優先度<select data-bulk-priority><option value="normal">通常</option><option value="priority">優先</option><option value="top">最優先</option></select></label><button type="button" data-apply-group-bulk="priority">適用</button></div>
           </section>
           ${rows}
         </div>
       </details>`;
-    }).join("") + '<p class="gb-progress-help">設定しない項目は「未設定」のままで問題ありません。素材は目標を設定したものだけ確認できます。</p>';
+    }).join("") + '<p class="gb-progress-help">現在が未設定の項目はそのままで問題ありません。目標を選ばない場合は、そのカテゴリの最終強化段階が自動目標になります。</p>';
     dialog.scrollTop = previousScrollTop;
   }
 
@@ -282,7 +282,7 @@
     const value = select?.value ?? "";
     if (type === "current" && !value) return;
     const labels = { current: "現在の段階", target: "目標", priority: "優先度" };
-    const displayValue = value || "目標なし";
+    const displayValue = value || group.stages.at(-1) + "（自動）";
     if (!confirm(`${group.name}全員の${labels[type]}を「${displayValue}」へまとめて設定しますか？`)) return;
     let applied = 0;
     for (const item of group.items) {
