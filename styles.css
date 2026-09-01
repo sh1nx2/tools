@@ -530,6 +530,13 @@ dialog { width: calc(100% - 32px); max-width: 420px; border: 1px solid var(--lin
 .gb-progress-group summary strong { font-size: 11px; }
 .gb-progress-group summary span { color: var(--muted); font-size: 9px; }
 .gb-progress-group > div { display: grid; gap: 6px; padding: 0 8px 8px; }
+.gb-group-bulk { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: 5px; align-items: end; padding: 8px; border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line)); border-radius: 9px; background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
+.gb-group-bulk > strong { align-self: center; color: var(--accent); font-size: 8px; writing-mode: vertical-rl; }
+.gb-group-bulk > div { display: grid; gap: 3px; }
+.gb-group-bulk label { display: grid !important; gap: 2px !important; margin: 0 !important; font-size: 7px !important; }
+.gb-group-bulk select { min-width: 0; padding: 5px 2px; font-size: 8px; }
+.gb-group-bulk button { border: 0; border-radius: 6px; padding: 4px 2px; background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--accent); cursor: pointer; font-size: 8px; font-weight: 850; }
+.gb-group-bulk button:hover { background: var(--accent); color: var(--action-text); }
 .gb-goal-row { display: grid; grid-template-columns: 72px repeat(3, minmax(0, 1fr)); gap: 5px; align-items: end; padding: 7px; border-radius: 8px; background: color-mix(in srgb, var(--surface) 62%, transparent); }
 .gb-goal-row > strong { align-self: center; overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 .gb-goal-row label { display: grid !important; gap: 2px !important; margin: 0 !important; font-size: 7px !important; }
@@ -561,7 +568,7 @@ dialog { width: calc(100% - 32px); max-width: 420px; border: 1px solid var(--lin
 .gb-material-status { color: var(--muted); font-size: 9px; font-weight: 800; }
 .gb-material-row.done .gb-material-status { color: var(--accent); }
 .gb-material-row.short .gb-material-status { color: var(--danger); }
-@media (max-width: 350px) { .gb-goal-row { grid-template-columns: 64px repeat(3, minmax(0, 1fr)); gap: 3px; padding: 5px; } .gb-goal-row select { padding-inline: 1px; font-size: 7px; } }
+@media (max-width: 350px) { .gb-group-bulk { grid-template-columns: repeat(3, minmax(0, 1fr)); } .gb-group-bulk > strong { grid-column: 1 / -1; writing-mode: horizontal-tb; } .gb-goal-row { grid-template-columns: 64px repeat(3, minmax(0, 1fr)); gap: 3px; padding: 5px; } .gb-goal-row select { padding-inline: 1px; font-size: 7px; } }
 .tutorial-dialog .dialog-heading { align-items: start; }
 .tutorial-dialog .dialog-heading small { color: var(--accent); font-size: 9px; font-weight: 850; letter-spacing: .08em; }
 .tutorial-dialog .dialog-heading h2 { margin-top: 1px; }

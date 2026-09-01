@@ -125,6 +125,8 @@
     const openGroups = new Set([...container.querySelectorAll(".gb-progress-group[open]")].map((details) => details.dataset.groupId));
     const previousScrollTop = dialog.scrollTop;
     container.innerHTML = master.groups.map((group) => {
+      const bulkCurrentOptions = group.stages.map((stage) => `<option value="${escapeHtml(stage)}">${escapeHtml(stage)}</option>`).join("");
+      const bulkTargetOptions = group.stages.slice(1).map((stage) => `<option value="${escapeHtml(stage)}">${escapeHtml(stage)}</option>`).join("");
       const rows = group.items.map((item) => {
         const key = entityKey(group.id, item);
         const current = data.progress[key] || "未設定";
@@ -138,7 +140,18 @@
           <label>優先度<select data-progress-priority ${goal.target ? "" : "disabled"}><option value="normal" ${goal.priority === "normal" ? "selected" : ""}>通常</option><option value="priority" ${goal.priority === "priority" ? "selected" : ""}>優先</option><option value="top" ${goal.priority === "top" ? "selected" : ""}>最優先</option></select></label>
         </article>`;
       }).join("");
-      return `<details class="gb-progress-group" data-group-id="${escapeHtml(group.id)}" ${openGroups.has(group.id) ? "open" : ""}><summary><strong>${escapeHtml(group.name)}</strong><span>${group.items.filter((item) => data.progress[entityKey(group.id, item)] && data.progress[entityKey(group.id, item)] !== "未設定").length} / ${group.items.length}設定</span></summary><div>${rows}</div></details>`;
+      return `<details class="gb-progress-group" data-group-id="${escapeHtml(group.id)}" ${openGroups.has(group.id) ? "open" : ""}>
+        <summary><strong>${escapeHtml(group.name)}</strong><span>${group.items.filter((item) => data.progress[entityKey(group.id, item)] && data.progress[entityKey(group.id, item)] !== "未設定").length} / ${group.items.length}設定</span></summary>
+        <div>
+          <section class="gb-group-bulk" aria-label="${escapeHtml(group.name)}の一括設定">
+            <strong>まとめて設定</strong>
+            <div><label>現在<select data-bulk-current><option value="" selected disabled>選択</option>${bulkCurrentOptions}</select></label><button type="button" data-apply-group-bulk="current">適用</button></div>
+            <div><label>目標<select data-bulk-target><option value="">目標なし</option>${bulkTargetOptions}</select></label><button type="button" data-apply-group-bulk="target">適用</button></div>
+            <div><label>優先度<select data-bulk-priority><option value="normal">通常</option><option value="priority">優先</option><option value="top">最優先</option></select></label><button type="button" data-apply-group-bulk="priority">適用</button></div>
+          </section>
+          ${rows}
+        </div>
+      </details>`;
     }).join("") + '<p class="gb-progress-help">設定しない項目は「未設定」のままで問題ありません。素材は目標を設定したものだけ確認できます。</p>';
     dialog.scrollTop = previousScrollTop;
   }
@@ -205,6 +218,46 @@
     } else return;
     await saveData();
     render();
+  }
+
+  async function applyGroupBulk(event) {
+    const button = event.target.closest("[data-apply-group-bulk]");
+    if (!button) return;
+    const details = button.closest(".gb-progress-group");
+    const group = master.groups.find((entry) => entry.id === details?.dataset.groupId);
+    if (!group) return;
+    const type = button.dataset.applyGroupBulk;
+    const select = details.querySelector(`[data-bulk-${type}]`);
+    const value = select?.value ?? "";
+    if (type === "current" && !value) return;
+    const labels = { current: "現在の段階", target: "目標", priority: "優先度" };
+    const displayValue = value || "目標なし";
+    if (!confirm(`${group.name}全員の${labels[type]}を「${displayValue}」へまとめて設定しますか？`)) return;
+    let applied = 0;
+    for (const item of group.items) {
+      const key = entityKey(group.id, item);
+      if (type === "current") {
+        data.progress[key] = value;
+        if (data.goals[key] && group.stages.indexOf(data.goals[key].target) <= group.stages.indexOf(value)) delete data.goals[key];
+        applied += 1;
+      } else if (type === "target") {
+        if (!value) {
+          if (data.goals[key]) applied += 1;
+          delete data.goals[key];
+          continue;
+        }
+        const current = data.progress[key];
+        if (!current || current === "未設定" || group.stages.indexOf(value) <= group.stages.indexOf(current)) continue;
+        data.goals[key] = { target: value, priority: data.goals[key]?.priority || "normal" };
+        applied += 1;
+      } else if (type === "priority" && data.goals[key]) {
+        data.goals[key].priority = value;
+        applied += 1;
+      }
+    }
+    await saveData();
+    render();
+    if (!applied) alert(type === "target" ? "現在の段階より先へ設定できる項目がありませんでした。" : "変更できる目標がありませんでした。");
   }
 
   async function handleMaterialChange(event) {
@@ -299,6 +352,7 @@
       }
     });
     $gb("#gbProgressGoals").addEventListener("change", handleGoalChange);
+    $gb("#gbProgressGoals").addEventListener("click", applyGroupBulk);
     $gb(".gb-material-scope").addEventListener("click", (event) => {
       const button = event.target.closest("[data-material-scope]");
       if (!button) return;
