@@ -73,6 +73,13 @@
       </button>
       <div id="normalEventDetails" class="normal-event-details" hidden></div>
     </section>
+    <section id="granblueProgressWidget" class="granblue-progress-widget" hidden>
+      <button id="gbWidgetSummary" class="gb-widget-summary" type="button" aria-expanded="false">
+        <span class="gb-widget-heading"><b>グラブル進捗</b><i aria-hidden="true">⌄</i></span>
+        <span id="gbWidgetMetrics" class="gb-widget-metrics"></span>
+      </button>
+      <div id="gbWidgetDetails" class="gb-widget-details" hidden></div>
+    </section>
     <div id="filterScrollShell" class="filter-scroll-shell">
       <button id="filterScrollLeft" class="filter-scroll-arrow" type="button" aria-label="前のジャンルを表示">‹</button>
       <nav id="filterBar" class="filter-bar" aria-label="表示フィルター">
@@ -505,8 +512,7 @@
         <section id="gbProgressGoals" class="gb-progress-view" hidden></section>
         <section id="gbProgressMaterials" class="gb-progress-view" hidden>
           <div class="gb-material-scope" aria-label="必要素材の集計範囲">
-            <button type="button" data-material-scope="top" class="active"><strong>最優先</strong></button>
-            <button type="button" data-material-scope="priority"><strong>優先まで</strong></button>
+            <button type="button" data-material-scope="priority" class="active"><strong>優先</strong></button>
             <button type="button" data-material-scope="all"><strong>全体</strong></button>
           </div>
           <div id="gbMaterialSummary"></div>

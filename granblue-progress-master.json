@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "sources": [
     "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/246381",
     "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/390463",
@@ -8,18 +8,18 @@
     "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/525609"
   ],
   "materials": {
-    "blue_paper": { "name": "碧麗の証", "trackingMode": "quantity", "important": true },
-    "heroic_pride": { "name": "雄偉者たちの矜持", "trackingMode": "quantity", "important": true },
-    "evolite": { "name": "セフィラ玉髄", "trackingMode": "quantity", "important": true },
+    "blue_paper": { "name": "碧麗の証", "trackingMode": "quantity", "important": true, "icon": "certificate" },
+    "heroic_pride": { "name": "雄偉者たちの矜持", "trackingMode": "quantity", "important": true, "icon": "crest" },
+    "evolite": { "name": "セフィラ玉髄", "trackingMode": "quantity", "important": true, "icon": "gem" },
     "mundus_defender": { "name": "対応するムンドゥスDF素材", "trackingMode": "check", "important": false },
     "bright": { "name": "対応するブライト", "trackingMode": "check", "important": false },
     "sephira_stone": { "name": "セフィラストーン", "trackingMode": "check", "important": false },
-    "sunlight_stone": { "name": "金剛晶", "trackingMode": "quantity", "important": true },
+    "sunlight_stone": { "name": "金剛晶", "trackingMode": "quantity", "important": true, "icon": "gem" },
     "world_idea": { "name": "世界のイデア", "trackingMode": "check", "important": false },
-    "new_world_quartz": { "name": "ニューワールド・クォーツ", "trackingMode": "quantity", "important": true },
-    "damascus_crystal": { "name": "ダマスカス骸晶", "trackingMode": "quantity", "important": true },
-    "gold_brick": { "name": "ヒヒイロカネ", "trackingMode": "quantity", "important": true },
-    "sand": { "name": "刻の流砂", "trackingMode": "quantity", "important": true },
+    "new_world_quartz": { "name": "ニューワールド・クォーツ", "trackingMode": "quantity", "important": true, "icon": "quartz" },
+    "damascus_crystal": { "name": "ダマスカス骸晶", "trackingMode": "quantity", "important": true, "icon": "gem" },
+    "gold_brick": { "name": "ヒヒイロカネ", "trackingMode": "quantity", "important": true, "icon": "ingot" },
+    "sand": { "name": "刻の流砂", "trackingMode": "quantity", "important": true, "icon": "sand" },
     "dark_crystal": { "name": "終末の暗晶", "trackingMode": "check", "important": false },
     "dark_wing": { "name": "漆黒の棘翅", "trackingMode": "check", "important": false },
     "cunning_horn": { "name": "狡知の魔角", "trackingMode": "check", "important": false },
@@ -46,7 +46,7 @@
     "zenith_proof": { "name": "極致の証", "trackingMode": "check", "important": false },
     "six_dragon_treasure:{attribute}": { "name": "{attribute}属性の六竜トレジャー", "trackingMode": "check", "important": false },
     "versusia_horn": { "name": "ヴェルサシアの角", "trackingMode": "check", "important": false },
-    "samsara_flame": { "name": "輪廻の雷炎", "trackingMode": "quantity", "important": true },
+    "samsara_flame": { "name": "輪廻の雷炎", "trackingMode": "quantity", "important": true, "icon": "flame" },
     "omega_unit": { "name": "オメガユニット", "trackingMode": "check", "important": false },
     "singularity:{attribute}": { "name": "{attribute}属性の特異点", "trackingMode": "check", "important": false }
   },

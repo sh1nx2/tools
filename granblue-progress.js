@@ -1,10 +1,10 @@
 (() => {
   const STORAGE_KEY = "granblueProgress";
-  const EMPTY_DATA = { started: false, progress: {}, goals: {}, inventory: {}, checks: {} };
+  const EMPTY_DATA = { started: false, progress: {}, goals: {}, inventory: {}, checks: {}, favoriteMaterials: [] };
   let master = null;
   let data = structuredClone(EMPTY_DATA);
   let view = "home";
-  let materialScope = "top";
+  let materialScope = "priority";
   let bulkUndo = null;
   const $gb = (selector) => document.querySelector(selector);
 
@@ -23,7 +23,8 @@
       progress: source.progress && typeof source.progress === "object" ? source.progress : {},
       goals: source.goals && typeof source.goals === "object" ? source.goals : {},
       inventory: source.inventory && typeof source.inventory === "object" ? source.inventory : {},
-      checks: source.checks && typeof source.checks === "object" ? source.checks : {}
+      checks: source.checks && typeof source.checks === "object" ? source.checks : {},
+      favoriteMaterials: Array.isArray(source.favoriteMaterials) ? [...new Set(source.favoriteMaterials.filter((id) => typeof id === "string"))] : []
     };
   }
 
@@ -86,14 +87,24 @@
     return changed;
   }
 
+  function migratePriorityLevels() {
+    let changed = false;
+    for (const goal of Object.values(data.goals)) {
+      if (goal?.priority === "top") {
+        goal.priority = "priority";
+        changed = true;
+      }
+    }
+    return changed;
+  }
+
   function goalEntities(scope = materialScope) {
     return allEntities().flatMap((entity) => {
       const current = data.progress[entity.key];
       if (!current || current === "未設定") return [];
       const goal = data.goals[entity.key];
-      if (scope === "top" && goal?.priority !== "top") return [];
       if (scope === "priority" && !["top", "priority"].includes(goal?.priority)) return [];
-      const target = scope === "all" ? entity.group.stages.at(-1) : goal?.target;
+      const target = scope === "all" || !goal?.target ? entity.group.stages.at(-1) : goal.target;
       if (!target || entity.group.stages.indexOf(target) <= entity.group.stages.indexOf(current)) return [];
       return [{ ...entity, current, target, priority: goal?.priority || "normal" }];
     });
@@ -114,10 +125,24 @@
     };
   }
 
+  function materialIcon(material) {
+    const icons = {
+      certificate: '<path d="M6 4h12v12H6zM9 8h6M9 11h4M9 16l-1 5 4-2 4 2-1-5"/>',
+      crest: '<path d="M12 3 20 7v6c0 4-3 7-8 9-5-2-8-5-8-9V7zM8 12l3 3 5-6"/>',
+      gem: '<path d="m12 3 7 6-7 12L5 9zM5 9h14M9 9l3 12 3-12-3-6z"/>',
+      ingot: '<path d="m7 7 10-2 4 10-14 4-4-9zM7 7l4 9M3 10l14-3"/>',
+      sand: '<path d="M7 3h10M7 21h10M8 4c0 4 1 6 4 8-3 2-4 4-4 8M16 4c0 4-1 6-4 8 3 2 4 4 4 8"/>',
+      flame: '<path d="M13 3c1 5-3 5-1 9 1-2 3-3 4-5 3 3 4 6 3 9-1 4-4 6-8 5-4-1-6-4-6-7 0-4 3-6 5-9 0 3 1 4 3 5"/>',
+      quartz: '<path d="m12 2 6 5-2 12-4 3-4-3L6 7zM6 7h12M9 7l3 15 3-15-3-5z"/>'
+    };
+    const content = icons[material.icon];
+    return content ? `<span class="gb-material-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${content}</svg></span>` : "";
+  }
+
   function aggregateMaterials(scope = materialScope) {
     const materials = new Map();
     const incomplete = new Set();
-    const priorityRank = { top: 0, priority: 1, normal: 2 };
+    const priorityRank = { top: 0, priority: 0, normal: 1 };
     for (const goal of goalEntities(scope)) {
       const from = goal.group.stages.indexOf(goal.current);
       const to = goal.group.stages.indexOf(goal.target);
@@ -168,7 +193,6 @@
   function renderHome() {
     const configured = effectiveProgressEntities().filter((entity) => entity.current && entity.current !== "未設定");
     const goals = goalEntities("priority");
-    const topGoals = goals.filter((goal) => goal.priority === "top");
     const stageProgress = configured.length
       ? Math.round(configured.reduce((sum, entity) => sum + Math.max(0, entity.group.stages.indexOf(entity.current) - 1) / Math.max(1, entity.group.stages.length - 2), 0) / configured.length * 100)
       : 0;
@@ -176,9 +200,9 @@
     const statuses = aggregate.items.map(materialStatus);
     const unknown = statuses.filter((status) => status.kind === "unknown").length;
     const shortage = statuses.filter((status) => status.kind === "short").length;
-    const goalMarkup = (topGoals.length ? topGoals : goals).slice(0, 5).map((goal) => `
+    const goalMarkup = goals.slice(0, 5).map((goal) => `
       <article class="gb-home-goal">
-        <span>${goal.priority === "top" ? "★" : "●"}</span>
+        <span>★</span>
         <div><strong>${escapeHtml(goal.item)}</strong><small>${escapeHtml(goal.group.name)}　${escapeHtml(goal.current)} → ${escapeHtml(goal.target)}</small></div>
         <button type="button" data-open-goal="${escapeHtml(goal.key)}">素材</button>
       </article>`).join("");
@@ -187,12 +211,37 @@
         <div><small>育成進捗</small><strong>${stageProgress}%</strong><span>設定済み ${configured.length}件</span></div>
         <div><small>素材確認</small><strong>${aggregate.items.length - unknown} / ${aggregate.items.length}</strong><span>未確認 ${unknown}種類</span></div>
       </div>
-      <section class="gb-home-section"><div class="gb-section-title"><h3>最優先・優先目標</h3><button type="button" data-go-view="goals">編集</button></div>
+      <section class="gb-home-section"><div class="gb-section-title"><h3>優先目標</h3><button type="button" data-go-view="goals">編集</button></div>
         ${goalMarkup || '<p class="gb-empty-note">優先目標はまだありません。現在の進捗だけでも保存できます。</p>'}
       </section>
       <section class="gb-home-section"><div class="gb-section-title"><h3>優先素材</h3><button type="button" data-go-view="materials">確認する</button></div>
         <p class="gb-material-glance">未確認 <strong>${unknown}</strong>種類　不足確認済み <strong>${shortage}</strong>種類</p>
       </section>`;
+  }
+
+  function renderWidget() {
+    const widget = $gb("#granblueProgressWidget");
+    widget.hidden = !data.started;
+    if (!data.started) return;
+    const configured = effectiveProgressEntities().filter((entity) => entity.current && entity.current !== "未設定");
+    const stageProgress = configured.length
+      ? Math.round(configured.reduce((sum, entity) => sum + Math.max(0, entity.group.stages.indexOf(entity.current) - 1) / Math.max(1, entity.group.stages.length - 2), 0) / configured.length * 100)
+      : 0;
+    const priorityGoals = goalEntities("priority").length;
+    const allMaterials = aggregateMaterials("all").items;
+    const statuses = allMaterials.map(materialStatus);
+    const attention = statuses.filter((status) => status.kind !== "done").length;
+    $gb("#gbWidgetMetrics").innerHTML = `
+      <span><small>育成進捗</small><strong>${stageProgress}%</strong></span>
+      <span><small>優先目標</small><strong>${priorityGoals}件</strong></span>
+      <span><small>要確認素材</small><strong>${attention}種</strong></span>`;
+    const favorites = allMaterials.filter((entry) => data.favoriteMaterials.includes(entry.materialId));
+    $gb("#gbWidgetDetails").innerHTML = favorites.length ? favorites.map((entry) => {
+      const status = materialStatus(entry);
+      const owned = status.owned ?? data.inventory[entry.materialId]?.quantity;
+      const detail = status.kind === "done" ? `所持 ${owned ?? "確認済み"} / 必要 ${entry.required}` : status.kind === "short" ? `所持 ${owned} / 必要 ${entry.required}（あと${status.shortage}）` : `必要 ${entry.required}・未確認`;
+      return `<button type="button" class="gb-widget-material" data-widget-material="${escapeHtml(entry.materialId)}"><strong>★ ${escapeHtml(materialDefinition(entry).name)}</strong><span>${detail}</span></button>`;
+    }).join("") : '<p class="gb-widget-empty">素材確認画面の☆から、ここに表示する素材を登録できます。</p>';
   }
 
   function renderGoals() {
@@ -213,7 +262,7 @@
           <strong>${escapeHtml(item)}</strong>
           <label>現在<select data-progress-current><option value="未設定">未設定</option>${group.stages.slice(1).map((stage) => `<option value="${escapeHtml(stage)}" ${current === stage ? "selected" : ""}>${escapeHtml(stage)}</option>`).join("")}</select></label>
           <label>目標<select data-progress-target><option value="">${escapeHtml(group.stages.at(-1))}（自動）</option>${targets}</select></label>
-          <label>優先度<select data-progress-priority ${goal.target ? "" : "disabled"}><option value="normal" ${goal.priority === "normal" ? "selected" : ""}>通常</option><option value="priority" ${goal.priority === "priority" ? "selected" : ""}>優先</option><option value="top" ${goal.priority === "top" ? "selected" : ""}>最優先</option></select></label>
+          <label class="gb-priority-toggle">優先<input data-progress-priority type="checkbox" ${["priority", "top"].includes(goal.priority) ? "checked" : ""}></label>
         </article>`;
       }).join("");
       return `<details class="gb-progress-group" data-group-id="${escapeHtml(group.id)}" ${openGroups.has(group.id) ? "open" : ""}>
@@ -223,7 +272,7 @@
             <strong>まとめて設定</strong>
             <div><label>現在<select data-bulk-current><option value="" selected disabled>選択</option>${bulkCurrentOptions}</select></label><button type="button" data-apply-group-bulk="current">適用</button></div>
             <div><label>目標<select data-bulk-target><option value="">最終強化（自動）</option>${bulkTargetOptions}</select></label><button type="button" data-apply-group-bulk="target">適用</button></div>
-            <div><label>優先度<select data-bulk-priority><option value="normal">通常</option><option value="priority">優先</option><option value="top">最優先</option></select></label><button type="button" data-apply-group-bulk="priority">適用</button></div>
+            <div><label>優先<select data-bulk-priority><option value="priority">優先にする</option><option value="normal">解除する</option></select></label><button type="button" data-apply-group-bulk="priority">適用</button></div>
           </section>
           ${rows}
         </div>
@@ -234,7 +283,7 @@
 
   function renderMaterials() {
     const aggregate = aggregateMaterials();
-    const scopeLabels = { top: "最優先", priority: "優先まで", all: "全体" };
+    const scopeLabels = { priority: "優先", all: "全体" };
     document.querySelectorAll("[data-material-scope]").forEach((button) => {
       const scope = button.dataset.materialScope;
       const summary = materialScopeSummary(scope);
@@ -255,7 +304,7 @@
       const statusText = status.kind === "unknown" ? "所持数を確認" : status.kind === "done" ? "✓ 必要数を確保" : "あと" + status.shortage;
       const allChecked = [...entry.goalKeys].every((goalKey) => data.checks[goalKey]?.[entry.materialId] === true);
       return `<article class="gb-material-row ${status.kind}" data-material-id="${escapeHtml(entry.materialId)}">
-        <div class="gb-material-title"><strong>${escapeHtml(material.name)}</strong>${material.important ? "<b>重要</b>" : ""}<span>必要 ${entry.required}</span></div>
+        <div class="gb-material-title">${materialIcon(material)}<button type="button" class="gb-material-favorite ${data.favoriteMaterials.includes(entry.materialId) ? "active" : ""}" data-material-favorite aria-label="${escapeHtml(material.name)}をウィジェットに表示" aria-pressed="${data.favoriteMaterials.includes(entry.materialId)}">★</button><strong>${escapeHtml(material.name)}</strong>${material.important ? "<b>重要</b>" : ""}<span>必要 ${entry.required}</span></div>
         <div class="gb-material-controls">
           <select data-material-mode aria-label="管理方法"><option value="unknown" ${mode === "unknown" ? "selected" : ""}>未確認</option><option value="quantity" ${mode === "quantity" ? "selected" : ""}>数量管理</option><option value="check" ${mode === "check" ? "selected" : ""}>達成チェック</option></select>
           ${mode === "quantity" ? `<div class="gb-quantity"><button type="button" data-quantity-step="-1">−</button><input data-material-quantity type="number" min="0" value="${inventory.quantity ?? ""}" placeholder="未確認"><button type="button" data-quantity-step="1">＋</button></div>` : ""}
@@ -267,6 +316,7 @@
   }
 
   function render() {
+    renderWidget();
     $gb("#granblueProgressWelcome").hidden = data.started;
     $gb("#granblueProgressApp").hidden = !data.started;
     if (!data.started) return;
@@ -292,12 +342,18 @@
     if (event.target.matches("[data-progress-current]")) {
       data.progress[key] = event.target.value;
       const goal = data.goals[key];
-      if (goal && group.stages.indexOf(goal.target) <= group.stages.indexOf(event.target.value)) delete data.goals[key];
+      if (goal?.target && group.stages.indexOf(goal.target) <= group.stages.indexOf(event.target.value)) {
+        if (["priority", "top"].includes(goal.priority)) data.goals[key] = { target: "", priority: "priority" };
+        else delete data.goals[key];
+      }
     } else if (event.target.matches("[data-progress-target]")) {
-      if (event.target.value) data.goals[key] = { target: event.target.value, priority: data.goals[key]?.priority || "normal" };
+      if (event.target.value) data.goals[key] = { target: event.target.value, priority: ["priority", "top"].includes(data.goals[key]?.priority) ? "priority" : "normal" };
+      else if (["priority", "top"].includes(data.goals[key]?.priority)) data.goals[key] = { target: "", priority: "priority" };
       else delete data.goals[key];
-    } else if (event.target.matches("[data-progress-priority]") && data.goals[key]) {
-      data.goals[key].priority = event.target.value;
+    } else if (event.target.matches("[data-progress-priority]")) {
+      if (event.target.checked) data.goals[key] = { target: data.goals[key]?.target || "", priority: "priority" };
+      else if (data.goals[key]?.target) data.goals[key].priority = "normal";
+      else delete data.goals[key];
     } else return;
     await saveData();
     render();
@@ -321,20 +377,28 @@
       const key = entityKey(group.id, item);
       if (type === "current") {
         data.progress[key] = value;
-        if (data.goals[key] && group.stages.indexOf(data.goals[key].target) <= group.stages.indexOf(value)) delete data.goals[key];
+        if (data.goals[key]?.target && group.stages.indexOf(data.goals[key].target) <= group.stages.indexOf(value)) {
+          if (["priority", "top"].includes(data.goals[key].priority)) data.goals[key] = { target: "", priority: "priority" };
+          else delete data.goals[key];
+        }
         applied += 1;
       } else if (type === "target") {
         if (!value) {
           if (data.goals[key]) applied += 1;
-          delete data.goals[key];
+          if (["priority", "top"].includes(data.goals[key]?.priority)) data.goals[key] = { target: "", priority: "priority" };
+          else delete data.goals[key];
           continue;
         }
         const current = data.progress[key];
         if (!current || current === "未設定" || group.stages.indexOf(value) <= group.stages.indexOf(current)) continue;
         data.goals[key] = { target: value, priority: data.goals[key]?.priority || "normal" };
         applied += 1;
-      } else if (type === "priority" && data.goals[key]) {
-        data.goals[key].priority = value;
+      } else if (type === "priority") {
+        const current = data.progress[key];
+        if (!current || current === "未設定") continue;
+        if (value === "priority") data.goals[key] = { target: data.goals[key]?.target || "", priority: "priority" };
+        else if (data.goals[key]?.target) data.goals[key].priority = "normal";
+        else delete data.goals[key];
         applied += 1;
       }
     }
@@ -377,6 +441,18 @@
     render();
   }
 
+  async function toggleMaterialFavorite(event) {
+    const button = event.target.closest("[data-material-favorite]");
+    if (!button) return false;
+    const materialId = button.closest(".gb-material-row")?.dataset.materialId;
+    if (!materialId) return false;
+    if (data.favoriteMaterials.includes(materialId)) data.favoriteMaterials = data.favoriteMaterials.filter((id) => id !== materialId);
+    else data.favoriteMaterials.push(materialId);
+    await saveData();
+    render();
+    return true;
+  }
+
   async function checkAllGeneralMaterials() {
     const entries = aggregateMaterials().items.filter((entry) => !materialDefinition(entry).important);
     if (!entries.length) return;
@@ -410,8 +486,23 @@
     }
     const saved = await chrome.storage.local.get(STORAGE_KEY);
     data = normalizeData(saved[STORAGE_KEY]);
-    if (migrateLegacyOpusProgress()) await saveData();
+    const migratedOpus = migrateLegacyOpusProgress();
+    const migratedPriority = migratePriorityLevels();
+    if (migratedOpus || migratedPriority) await saveData();
     $gb("#granblueProgressButton").addEventListener("click", () => {
+      render();
+      $gb("#granblueProgressDialog").showModal();
+    });
+    $gb("#gbWidgetSummary").addEventListener("click", () => {
+      const summary = $gb("#gbWidgetSummary");
+      const expanded = summary.getAttribute("aria-expanded") !== "true";
+      summary.setAttribute("aria-expanded", String(expanded));
+      $gb("#gbWidgetDetails").hidden = !expanded;
+    });
+    $gb("#gbWidgetDetails").addEventListener("click", (event) => {
+      if (!event.target.closest("[data-widget-material]")) return;
+      materialScope = "all";
+      view = "materials";
       render();
       $gb("#granblueProgressDialog").showModal();
     });
@@ -431,7 +522,7 @@
       const viewButton = event.target.closest("[data-go-view]");
       if (viewButton) setView(viewButton.dataset.goView);
       if (event.target.closest("[data-open-goal]")) {
-        materialScope = "top";
+        materialScope = "priority";
         setView("materials");
       }
     });
@@ -446,6 +537,7 @@
     });
     $gb("#gbProgressMaterials").addEventListener("change", handleMaterialChange);
     $gb("#gbProgressMaterials").addEventListener("click", (event) => {
+      if (event.target.closest("[data-material-favorite]")) { toggleMaterialFavorite(event); return; }
       if (event.target.closest("[data-quantity-step]")) stepQuantity(event);
       if (event.target.closest("[data-undo-material-check]")) undoBulkCheck();
     });
@@ -454,7 +546,9 @@
       if (area !== "local" || !changes[STORAGE_KEY]) return;
       data = normalizeData(changes[STORAGE_KEY].newValue);
       if ($gb("#granblueProgressDialog").open) render();
+      else renderWidget();
     });
+    renderWidget();
   }
 
   initialize();
