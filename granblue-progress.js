@@ -165,8 +165,12 @@
         }
       }
     }
+    const hasQuantityInput = (entry) => {
+      const inventory = data.inventory[entry.materialId] || {};
+      return inventory.mode === "quantity" && inventory.quantity !== "" && Number.isFinite(Number(inventory.quantity));
+    };
     return {
-      items: [...materials.values()].sort((a, b) => a.rank - b.rank || Number(materialDefinition(b).important) - Number(materialDefinition(a).important) || materialDefinition(a).name.localeCompare(materialDefinition(b).name, "ja")),
+      items: [...materials.values()].sort((a, b) => Number(hasQuantityInput(b)) - Number(hasQuantityInput(a)) || a.rank - b.rank || Number(materialDefinition(b).important) - Number(materialDefinition(a).important) || materialDefinition(a).name.localeCompare(materialDefinition(b).name, "ja")),
       incomplete: [...incomplete]
     };
   }
