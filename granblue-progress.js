@@ -120,7 +120,11 @@
   }
 
   function renderGoals() {
-    $gb("#gbProgressGoals").innerHTML = master.groups.map((group) => {
+    const container = $gb("#gbProgressGoals");
+    const dialog = $gb("#granblueProgressDialog");
+    const openGroups = new Set([...container.querySelectorAll(".gb-progress-group[open]")].map((details) => details.dataset.groupId));
+    const previousScrollTop = dialog.scrollTop;
+    container.innerHTML = master.groups.map((group) => {
       const rows = group.items.map((item) => {
         const key = entityKey(group.id, item);
         const current = data.progress[key] || "未設定";
@@ -134,8 +138,9 @@
           <label>優先度<select data-progress-priority ${goal.target ? "" : "disabled"}><option value="normal" ${goal.priority === "normal" ? "selected" : ""}>通常</option><option value="priority" ${goal.priority === "priority" ? "selected" : ""}>優先</option><option value="top" ${goal.priority === "top" ? "selected" : ""}>最優先</option></select></label>
         </article>`;
       }).join("");
-      return `<details class="gb-progress-group"><summary><strong>${escapeHtml(group.name)}</strong><span>${group.items.filter((item) => data.progress[entityKey(group.id, item)] && data.progress[entityKey(group.id, item)] !== "未設定").length} / ${group.items.length}設定</span></summary><div>${rows}</div></details>`;
+      return `<details class="gb-progress-group" data-group-id="${escapeHtml(group.id)}" ${openGroups.has(group.id) ? "open" : ""}><summary><strong>${escapeHtml(group.name)}</strong><span>${group.items.filter((item) => data.progress[entityKey(group.id, item)] && data.progress[entityKey(group.id, item)] !== "未設定").length} / ${group.items.length}設定</span></summary><div>${rows}</div></details>`;
     }).join("") + '<p class="gb-progress-help">設定しない項目は「未設定」のままで問題ありません。素材は目標を設定したものだけ確認できます。</p>';
+    dialog.scrollTop = previousScrollTop;
   }
 
   function renderMaterials() {
