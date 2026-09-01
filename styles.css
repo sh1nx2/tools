@@ -239,8 +239,10 @@ body[data-genre-scroll="arrows"] .filter-scroll-shell.has-overflow .filter-bar {
 .gb-widget-detail-heading i { min-width: 38px; color: var(--muted); font-size: 6px; font-style: normal; font-weight: 750; text-align: right; }
 .gb-widget-material { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 7px; border: 0; border-radius: 8px; padding: 6px 7px; background: color-mix(in srgb, var(--accent) 7%, transparent); color: inherit; text-align: left; cursor: pointer; }
 .gb-widget-material:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
-.gb-widget-material-info { display: grid; min-width: 0; }
+.gb-widget-material-info { display: grid; min-width: 0; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 5px; }
 .gb-widget-material-info strong { overflow: hidden; color: var(--ink); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.gb-widget-material .gb-material-icon { width: 19px; height: 19px; flex-basis: 19px; border-radius: 6px; }
+.gb-widget-material .gb-material-icon svg { width: 13px; height: 13px; }
 .gb-widget-needs { display: grid; grid-template-columns: repeat(3, minmax(34px, auto)); gap: 3px; }
 .gb-widget-needs b { display: grid; min-width: 38px; border-radius: 6px; padding: 4px 5px; background: color-mix(in srgb, var(--surface) 62%, transparent); color: var(--ink); font-size: 10px; font-variant-numeric: tabular-nums; text-align: right; }
 .gb-widget-needs b.owned { background: color-mix(in srgb, var(--surface-2) 75%, transparent); }
