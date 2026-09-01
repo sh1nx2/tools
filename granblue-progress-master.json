@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "sources": [
     "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/246381",
     "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/390463",
@@ -46,7 +46,7 @@
     "zenith_proof": { "name": "極致の証", "trackingMode": "check", "important": false },
     "six_dragon_treasure:{attribute}": { "name": "{attribute}属性の六竜トレジャー", "trackingMode": "check", "important": false },
     "versusia_horn": { "name": "ヴェルサシアの角", "trackingMode": "check", "important": false },
-    "samsara_flame": { "name": "輪廻の雷炎", "trackingMode": "check", "important": false },
+    "samsara_flame": { "name": "輪廻の雷炎", "trackingMode": "quantity", "important": true },
     "omega_unit": { "name": "オメガユニット", "trackingMode": "check", "important": false },
     "singularity:{attribute}": { "name": "{attribute}属性の特異点", "trackingMode": "check", "important": false }
   },
