@@ -2909,23 +2909,24 @@ function showUndoToast(message, snapshot) {
   showToast(message);
 }
 
-function exportData() {
-  downloadBackup(createBackupData(false), `sidemarks-${new Date().toISOString().slice(0, 10)}.json`);
+async function exportData() {
+  downloadBackup(await createBackupData(false), `sidemarks-${new Date().toISOString().slice(0, 10)}.json`);
 }
 
-function createBackupData(includeBackgrounds) {
+async function createBackupData(includeBackgrounds) {
+  const { granblueProgress } = await chrome.storage.local.get("granblueProgress");
   const lightweightPresets = state.backgroundPresets.map((preset) => ({
     ...preset,
     background: { ...preset.background, image: "" },
     ...(preset.genreBackgrounds ? { genreBackgrounds: Object.fromEntries(Object.entries(preset.genreBackgrounds).map(([key, settings]) => [key, { ...settings, image: "" }])) } : {})
   }));
-  const data = { version: 10, backupType: includeBackgrounds ? "complete" : "lightweight", bookmarks: state.bookmarks, genres: state.genres, favoriteTabIndex: state.favoriteTabIndex, folderOrder: state.folderOrder, collapsedFolders: [...state.collapsedFolders], theme: state.theme, homeBookmarkId: state.homeBookmarkId, appearance: state.appearance, backgroundPresets: lightweightPresets, backgroundPresetAssignments: state.backgroundPresetAssignments, eventSchedule: state.eventSchedule };
+  const data = { version: 12, backupType: includeBackgrounds ? "complete" : "lightweight", bookmarks: state.bookmarks, genres: state.genres, favoriteTabIndex: state.favoriteTabIndex, folderOrder: state.folderOrder, collapsedFolders: [...state.collapsedFolders], theme: state.theme, homeBookmarkId: state.homeBookmarkId, appearance: state.appearance, backgroundPresets: lightweightPresets, backgroundPresetAssignments: state.backgroundPresetAssignments, eventSchedule: state.eventSchedule, granblueProgress };
   if (includeBackgrounds) Object.assign(data, { background: state.background, genreBackgrounds: state.genreBackgrounds, backgroundTransition: state.backgroundTransition, backgroundPresets: structuredClone(state.backgroundPresets) });
   return data;
 }
 
-function exportCompleteData() {
-  const data = createBackupData(true);
+async function exportCompleteData() {
+  const data = await createBackupData(true);
   const json = JSON.stringify(data, null, 2);
   const bytes = new Blob([json]).size;
   const size = bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.ceil(bytes / 1024))} KB`;
@@ -2934,12 +2935,13 @@ function exportCompleteData() {
   downloadBackup(data, `sidemarks-complete-${new Date().toISOString().slice(0, 10)}.json`, json);
 }
 
-function exportSelectedData() {
+async function exportSelectedData() {
   const sections = [
     ["bookmarks", $("#backupBookmarks").checked],
     ["appearance", $("#backupAppearance").checked],
     ["backgrounds", $("#backupBackgrounds").checked],
-    ["schedule", $("#backupSchedule").checked]
+    ["schedule", $("#backupSchedule").checked],
+    ["progress", $("#backupGranblueProgress").checked]
   ].filter(([, selected]) => selected).map(([name]) => name);
   if (!sections.length) { showToast("書き出す項目を選んでください"); return; }
   const data = { version: 11, backupType: "selected", selectedSections: sections };
@@ -2947,6 +2949,7 @@ function exportSelectedData() {
   if (sections.includes("appearance")) Object.assign(data, { theme: state.theme, appearance: state.appearance });
   if (sections.includes("backgrounds")) Object.assign(data, { background: state.background, genreBackgrounds: state.genreBackgrounds, backgroundTransition: state.backgroundTransition, backgroundPresets: structuredClone(state.backgroundPresets), backgroundPresetAssignments: state.backgroundPresetAssignments });
   if (sections.includes("schedule")) data.eventSchedule = state.eventSchedule;
+  if (sections.includes("progress")) data.granblueProgress = (await chrome.storage.local.get("granblueProgress")).granblueProgress;
   const json = JSON.stringify(data, null, 2);
   if (sections.includes("backgrounds")) {
     const bytes = new Blob([json]).size;
@@ -2968,14 +2971,14 @@ function downloadBackup(data, filename, preparedJson = null) {
 async function importData(event) {
   try {
     const parsed = JSON.parse(await event.target.files[0].text());
-    const validSections = ["bookmarks", "appearance", "backgrounds", "schedule"];
+    const validSections = ["bookmarks", "appearance", "backgrounds", "schedule", "progress"];
     const isSelected = parsed.backupType === "selected" && Array.isArray(parsed.selectedSections);
     const sections = isSelected ? parsed.selectedSections.filter((section) => validSections.includes(section)) : validSections;
     if ((isSelected && !sections.length) || (!isSelected && !Array.isArray(parsed.bookmarks))) throw new Error();
     const isComplete = parsed.backupType === "complete";
     if (isComplete && !confirm("完全バックアップを読み込みます。\n現在のブックマーク、設定、背景画像がバックアップ内容に置き換わります。続けますか？")) { event.target.value = ""; return; }
     if (isSelected) {
-      const sectionLabels = { bookmarks: "ブックマークと分類", appearance: "表示・操作設定", backgrounds: "背景画像とプリセット", schedule: "古戦場日程" };
+      const sectionLabels = { bookmarks: "ブックマークと分類", appearance: "表示・操作設定", backgrounds: "背景画像とプリセット", schedule: "古戦場日程", progress: "グラブル進捗管理" };
       if (!confirm(`次の項目を読み込みます。\n\n${sections.map((section) => `・${sectionLabels[section]}`).join("\n")}\n\n対象項目は現在の内容から置き換わります。続けますか？`)) { event.target.value = ""; return; }
     }
     if (sections.includes("bookmarks")) {
@@ -3007,6 +3010,7 @@ async function importData(event) {
     if (sections.includes("schedule") && Object.hasOwn(parsed, "eventSchedule")) state.eventSchedule = normalizeEventSchedule(parsed.eventSchedule);
     const importedSettings = { genres: state.genres, favoriteTabIndex: state.favoriteTabIndex, folderOrder: state.folderOrder, collapsedFolders: [...state.collapsedFolders], theme: state.theme, homeBookmarkId: state.homeBookmarkId, appearance: state.appearance, genreBackgrounds: state.genreBackgrounds, backgroundPresets: state.backgroundPresets, backgroundPresetAssignments: state.backgroundPresetAssignments, eventSchedule: state.eventSchedule };
     if (isComplete || sections.includes("backgrounds")) Object.assign(importedSettings, { background: state.background, backgroundTransition: state.backgroundTransition });
+    if (sections.includes("progress") && parsed.granblueProgress && typeof parsed.granblueProgress === "object") importedSettings.granblueProgress = parsed.granblueProgress;
     await chrome.storage.local.set(importedSettings);
     applyTheme();
     applyAppearance();

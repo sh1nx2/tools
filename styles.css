@@ -495,6 +495,73 @@ dialog { width: calc(100% - 32px); max-width: 420px; border: 1px solid var(--lin
 .initial-setup-option strong { align-self: end; font-size: 12px; }
 .initial-setup-option small { color: var(--muted); font-size: 9px; line-height: 1.45; }
 .initial-setup-option b { position: absolute; top: 7px; right: 8px; padding: 2px 5px; border-radius: 999px; background: var(--accent); color: var(--action-text); font-size: 7px; }
+.granblue-progress-dialog { width: calc(100% - 20px); max-height: calc(100vh - 20px); padding: 14px; overflow-y: auto; }
+.granblue-progress-dialog > .dialog-heading { position: sticky; z-index: 15; top: -14px; margin: -14px -14px 0; padding: 10px 14px; border-bottom: 1px solid color-mix(in srgb, var(--line) 72%, transparent); background: color-mix(in srgb, var(--surface) 95%, transparent); backdrop-filter: blur(14px); }
+.granblue-progress-dialog .dialog-heading small { color: var(--accent); font-size: 7px; font-weight: 900; letter-spacing: .1em; }
+.granblue-progress-dialog .dialog-heading h2 { margin: 0; font-size: 16px; }
+.gb-progress-welcome { padding: 28px 12px 18px; text-align: center; }
+.gb-progress-mark { display: grid; width: 52px; height: 52px; margin: 0 auto 12px; place-items: center; border-radius: 16px; background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--accent); font-size: 27px; }
+.gb-progress-welcome h3 { margin: 0; font-size: 17px; }
+.gb-progress-welcome p { margin: 8px auto 18px; color: var(--muted); font-size: 11px; line-height: 1.65; }
+.gb-progress-welcome .primary-button { width: 100%; }
+.gb-progress-welcome .text-button { margin-top: 10px; }
+.gb-progress-tabs, .gb-material-scope { position: sticky; z-index: 10; top: 39px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; margin: 0 -3px 12px; padding: 7px 3px; background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(12px); }
+.gb-progress-tabs button, .gb-material-scope button { min-width: 0; border: 0; border-radius: 8px; padding: 7px 4px; background: color-mix(in srgb, var(--surface-2) 72%, transparent); color: var(--muted); cursor: pointer; font-size: 10px; font-weight: 800; }
+.gb-progress-tabs button.active, .gb-material-scope button.active { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: var(--accent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent); }
+.gb-progress-tabs span { display: inline-grid; min-width: 15px; height: 15px; margin-left: 2px; padding: 0 3px; place-items: center; border-radius: 999px; background: color-mix(in srgb, var(--accent) 15%, transparent); font-size: 8px; }
+.gb-progress-overview { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.gb-progress-overview > div { display: grid; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--bg) 58%, transparent); }
+.gb-progress-overview small { color: var(--muted); font-size: 9px; font-weight: 800; }
+.gb-progress-overview strong { color: var(--accent); font-size: 22px; line-height: 1.3; }
+.gb-progress-overview span { color: var(--muted); font-size: 8px; }
+.gb-home-section { margin-top: 11px; padding: 11px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--bg) 52%, transparent); }
+.gb-section-title, .gb-material-title, .gb-material-summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.gb-section-title h3 { margin: 0; font-size: 11px; }
+.gb-section-title button, .gb-material-summary button { border: 0; background: transparent; color: var(--accent); cursor: pointer; font-size: 9px; font-weight: 800; }
+.gb-home-goal { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 6px; margin-top: 7px; padding-top: 7px; border-top: 1px solid color-mix(in srgb, var(--line) 65%, transparent); }
+.gb-home-goal > span { color: var(--accent); }
+.gb-home-goal div { display: grid; min-width: 0; }
+.gb-home-goal strong { overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.gb-home-goal small { color: var(--muted); font-size: 8px; }
+.gb-home-goal button { border: 0; border-radius: 6px; padding: 4px 6px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); cursor: pointer; font-size: 8px; }
+.gb-material-glance, .gb-empty-note, .gb-progress-help { margin: 9px 0 0; color: var(--muted); font-size: 9px; line-height: 1.55; }
+.gb-progress-group { margin-bottom: 8px; border: 1px solid var(--line); border-radius: 11px; background: color-mix(in srgb, var(--bg) 54%, transparent); overflow: hidden; }
+.gb-progress-group summary { display: flex; justify-content: space-between; padding: 10px 11px; cursor: pointer; list-style: none; }
+.gb-progress-group summary strong { font-size: 11px; }
+.gb-progress-group summary span { color: var(--muted); font-size: 9px; }
+.gb-progress-group > div { display: grid; gap: 6px; padding: 0 8px 8px; }
+.gb-goal-row { display: grid; grid-template-columns: 72px repeat(3, minmax(0, 1fr)); gap: 5px; align-items: end; padding: 7px; border-radius: 8px; background: color-mix(in srgb, var(--surface) 62%, transparent); }
+.gb-goal-row > strong { align-self: center; overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.gb-goal-row label { display: grid !important; gap: 2px !important; margin: 0 !important; font-size: 7px !important; }
+.gb-goal-row select { min-width: 0; padding: 5px 3px; font-size: 8px; }
+.gb-material-scope { position: static; margin-top: 0; }
+.gb-material-summary { padding: 8px 9px; border-radius: 9px; background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.gb-material-summary strong { font-size: 10px; }
+.gb-material-summary span { color: var(--muted); font-size: 9px; }
+.gb-master-notice { margin: 8px 0; padding: 8px 9px; border: 1px solid color-mix(in srgb, var(--danger) 25%, var(--line)); border-radius: 9px; color: var(--muted); font-size: 8px; }
+.gb-master-notice summary { color: var(--danger); cursor: pointer; font-weight: 800; }
+.gb-master-notice p { margin: 5px 0; }
+.gb-master-notice ul { margin: 4px 0 0; padding-left: 16px; }
+#gbCheckGeneralMaterialsButton { width: 100%; margin: 8px 0; }
+.gb-material-list { display: grid; gap: 7px; margin-top: 8px; }
+.gb-material-row { display: grid; gap: 7px; padding: 10px; border: 1px solid var(--line); border-radius: 11px; background: color-mix(in srgb, var(--bg) 58%, transparent); }
+.gb-material-row.done { border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+.gb-material-row.short { border-color: color-mix(in srgb, var(--danger) 40%, var(--line)); }
+.gb-material-title { justify-content: flex-start; }
+.gb-material-title strong { min-width: 0; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.gb-material-title b { padding: 1px 5px; border-radius: 999px; background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); font-size: 7px; }
+.gb-material-title span { margin-left: auto; color: var(--muted); font-size: 9px; }
+.gb-material-controls { display: grid; grid-template-columns: minmax(92px, .7fr) minmax(0, 1.3fr); gap: 7px; align-items: center; }
+.gb-material-controls select { min-width: 0; padding: 6px; font-size: 9px; }
+.gb-quantity { display: grid; grid-template-columns: 27px minmax(0, 1fr) 27px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; }
+.gb-quantity button { border: 0; background: var(--surface-2); color: var(--accent); cursor: pointer; font-weight: 900; }
+.gb-quantity input { min-width: 0; border-width: 0 1px !important; border-radius: 0 !important; padding: 5px !important; text-align: center; }
+.gb-enough-check { display: flex !important; grid-template-columns: auto 1fr !important; align-items: center; gap: 6px !important; margin: 0 !important; color: var(--ink) !important; font-size: 8px !important; }
+.gb-enough-check input { width: 17px; height: 17px; accent-color: var(--accent); }
+.gb-material-status { color: var(--muted); font-size: 9px; font-weight: 800; }
+.gb-material-row.done .gb-material-status { color: var(--accent); }
+.gb-material-row.short .gb-material-status { color: var(--danger); }
+@media (max-width: 350px) { .gb-goal-row { grid-template-columns: 64px repeat(3, minmax(0, 1fr)); gap: 3px; padding: 5px; } .gb-goal-row select { padding-inline: 1px; font-size: 7px; } }
 .tutorial-dialog .dialog-heading { align-items: start; }
 .tutorial-dialog .dialog-heading small { color: var(--accent); font-size: 9px; font-weight: 850; letter-spacing: .08em; }
 .tutorial-dialog .dialog-heading h2 { margin-top: 1px; }

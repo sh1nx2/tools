@@ -37,6 +37,7 @@
         </div>
         <span id="topAppVersion" class="top-app-version" aria-label="SideMarksのバージョン"></span>
         <div class="header-actions">
+          <button id="granblueProgressButton" class="icon-button" type="button" title="グラブル進捗管理" aria-label="グラブル進捗管理">◇</button>
           <button id="backgroundButton" class="icon-button" type="button" title="背景画像を設定" aria-label="背景画像を設定">▧</button>
           <button id="themeButton" class="icon-button" type="button" title="テーマを切り替え" aria-label="テーマを切り替え">☾</button>
           <button id="tutorialButton" class="icon-button tutorial-button" type="button" title="使い方を見る" aria-label="SideMarksの使い方を見る">?</button>
@@ -202,6 +203,7 @@
             <label><span>表示・操作設定</span><input id="backupAppearance" type="checkbox" checked></label>
             <label><span>背景画像とプリセット</span><input id="backupBackgrounds" type="checkbox"></label>
             <label><span>古戦場日程</span><input id="backupSchedule" type="checkbox"></label>
+            <label><span>グラブル進捗管理</span><input id="backupGranblueProgress" type="checkbox" checked></label>
             <button id="exportSelectedButton" class="secondary-button" type="button">選択した項目を書き出す</button>
           </fieldset>
         </section>
@@ -481,6 +483,39 @@
       </div>
     </dialog>
 
+    <dialog id="granblueProgressDialog" class="granblue-progress-dialog">
+      <div class="dialog-heading">
+        <div><small>GRANBLUE PROGRESS</small><h2>グラブル進捗管理</h2></div>
+        <button id="closeGranblueProgressButton" class="icon-button" type="button" aria-label="閉じる">×</button>
+      </div>
+      <div id="granblueProgressWelcome" class="gb-progress-welcome" hidden>
+        <div class="gb-progress-mark">◇</div>
+        <h3>必要なところから少しずつ</h3>
+        <p>最初に全素材を入力する必要はありません。現在の育成段階と優先したい目標だけ設定できます。</p>
+        <button id="startGranblueProgressButton" class="primary-button" type="button">進捗管理を始める</button>
+        <button id="skipGranblueProgressButton" class="text-button" type="button">あとで設定</button>
+      </div>
+      <div id="granblueProgressApp" hidden>
+        <nav class="gb-progress-tabs" aria-label="進捗管理の表示">
+          <button type="button" data-progress-view="home" class="active">ホーム</button>
+          <button type="button" data-progress-view="goals">進捗・目標</button>
+          <button type="button" data-progress-view="materials">素材確認 <span id="gbUncheckedBadge">0</span></button>
+        </nav>
+        <section id="gbProgressHome" class="gb-progress-view"></section>
+        <section id="gbProgressGoals" class="gb-progress-view" hidden></section>
+        <section id="gbProgressMaterials" class="gb-progress-view" hidden>
+          <div class="gb-material-scope" aria-label="必要素材の集計範囲">
+            <button type="button" data-material-scope="top" class="active">最優先</button>
+            <button type="button" data-material-scope="priority">優先まで</button>
+            <button type="button" data-material-scope="all">全体</button>
+          </div>
+          <div id="gbMaterialSummary"></div>
+          <button id="gbCheckGeneralMaterialsButton" class="secondary-button compact" type="button">一般素材をすべて必要数以上にする</button>
+          <div id="gbMaterialList" class="gb-material-list"></div>
+        </section>
+      </div>
+    </dialog>
+
     <dialog id="tutorialDialog" class="tutorial-dialog">
       <div class="dialog-heading"><div><small>はじめてのSideMarks</small><h2>できることと使い方</h2></div><button id="closeTutorialButton" class="icon-button" type="button" aria-label="閉じる">×</button></div>
       <p class="tutorial-intro">よく見るページを右側にまとめ、見た目や開き方を自分好みに整えられます。</p>
@@ -498,5 +533,6 @@
 
     <div id="toast" class="toast" role="status"></div>
     <script src="sidepanel.js"></script>
+    <script src="granblue-progress.js"></script>
   </body>
 </html>

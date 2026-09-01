@@ -13,6 +13,8 @@ $releaseFiles = @(
   "background.js",
   "sidepanel.html",
   "sidepanel.js",
+  "granblue-progress.js",
+  "granblue-progress-master.json",
   "styles.css",
   "defaults.json",
   "defaults-general.json",
