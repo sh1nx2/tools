@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "sources": [
     "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/246381",
     "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/390463"
@@ -52,7 +52,7 @@
       "name": "終末",
       "progressAggregation": "highestByAttribute",
       "items": ["火・マグナ", "火・神石", "水・マグナ", "水・神石", "土・マグナ", "土・神石", "風・マグナ", "風・神石", "光・マグナ", "光・神石", "闇・マグナ", "闇・神石"],
-      "stages": ["未設定", "未所持", "3凸", "4凸", "5凸"],
+      "stages": ["未設定", "未所持", "3凸", "4凸", "5凸", "Lv210", "Lv220", "Lv230", "Lv240", "Lv250"],
       "recipes": {}
     },
     {
