@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "sources": [
     "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/246381",
     "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/390463",
@@ -33,7 +33,7 @@
     "bright:{attribute}": { "name": "{attribute}属性のブライト", "trackingMode": "check", "important": false },
     "new_blessing:{attribute}": { "name": "{attribute}属性の新恩寵", "trackingMode": "check", "important": false },
     "fire_halo": { "name": "火の光輪", "trackingMode": "check", "important": false },
-    "ultimate_crystal": { "name": "極理の結晶", "trackingMode": "check", "important": false },
+    "ultimate_crystal": { "name": "極理の結晶", "trackingMode": "check", "important": false, "icon": "ultimate" },
     "ultimate_memory": { "name": "アルテマメモリ", "trackingMode": "check", "important": false },
     "true_dragon_scale": { "name": "真龍の金鱗", "trackingMode": "check", "important": false },
     "silver_centrum": { "name": "銀天の輝き", "trackingMode": "check", "important": false },

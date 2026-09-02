@@ -135,7 +135,8 @@
       flame: '<path d="M13 3c1 5-3 5-1 9 1-2 3-3 4-5 3 3 4 6 3 9-1 4-4 6-8 5-4-1-6-4-6-7 0-4 3-6 5-9 0 3 1 4 3 5"/>',
       quartz: '<path d="m12 2 6 5-2 12-4 3-4-3L6 7zM6 7h12M9 7l3 15 3-15-3-5z"/>',
       horn: '<path d="M5 19c5-2 6-7 5-13 5 3 7 7 5 13M5 19c4 1 8 1 12 0M10 6l2 3"/>',
-      feather: '<path d="M6 20c5-1 10-6 12-14-7 1-12 6-12 14ZM7 19l10-10M10 16l-3-1M13 13l-1-3"/>'
+      feather: '<path d="M6 20c5-1 10-6 12-14-7 1-12 6-12 14ZM7 19l10-10M10 16l-3-1M13 13l-1-3"/>',
+      ultimate: '<path d="m12 2 6 6-2 11-4 3-4-3L6 8zM6 8h12M9 8l3 14 3-14-3-6zM3 12h3m15 0h-3"/>'
     };
     const content = icons[material.icon];
     return content ? `<span class="gb-material-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${content}</svg></span>` : "";
