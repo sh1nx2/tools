@@ -37,14 +37,14 @@ async function rebuildContextMenusNow() {
       contexts: favoriteContexts
     });
   } else {
-    favorites.forEach((item) => {
+    for (const item of favorites) {
       const title = item.title.length > 45 ? `${item.title.slice(0, 44)}…` : item.title;
       await chrome.contextMenus.create({
         id: `${FAVORITE_PREFIX}${item.id}`,
         title: `★ ${title}`,
         contexts: favoriteContexts
       });
-    });
+    }
   }
   await chrome.contextMenus.create({
     id: "sidemarks-separator",
