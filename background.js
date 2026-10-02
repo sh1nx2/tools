@@ -1,5 +1,6 @@
 const FAVORITE_PREFIX = "sidemarks-favorite:";
 const PAGE_CONTEXTS = ["page", "frame", "selection", "link", "editable", "image", "video", "audio"];
+let contextMenuRebuildPromise = Promise.resolve();
 
 chrome.runtime.onInstalled.addListener(async () => {
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
@@ -15,13 +16,21 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes.bookmarks) rebuildContextMenus();
 });
 
-async function rebuildContextMenus() {
+function rebuildContextMenus() {
+  contextMenuRebuildPromise = contextMenuRebuildPromise
+    .catch(() => {})
+    .then(rebuildContextMenusNow)
+    .catch((error) => console.error("SideMarksの右クリックメニューを更新できませんでした", error));
+  return contextMenuRebuildPromise;
+}
+
+async function rebuildContextMenusNow() {
   await chrome.contextMenus.removeAll();
   const { bookmarks = [] } = await chrome.storage.local.get("bookmarks");
   const favorites = bookmarks.filter((item) => item.favorite && /^https?:/.test(item.url));
   const favoriteContexts = [...PAGE_CONTEXTS, "action"];
   if (!favorites.length) {
-    chrome.contextMenus.create({
+    await chrome.contextMenus.create({
       id: "sidemarks-no-favorites",
       title: "お気に入りはありません",
       enabled: false,
@@ -30,24 +39,24 @@ async function rebuildContextMenus() {
   } else {
     favorites.forEach((item) => {
       const title = item.title.length > 45 ? `${item.title.slice(0, 44)}…` : item.title;
-      chrome.contextMenus.create({
+      await chrome.contextMenus.create({
         id: `${FAVORITE_PREFIX}${item.id}`,
         title: `★ ${title}`,
         contexts: favoriteContexts
       });
     });
   }
-  chrome.contextMenus.create({
+  await chrome.contextMenus.create({
     id: "sidemarks-separator",
     type: "separator",
     contexts: favoriteContexts
   });
-  chrome.contextMenus.create({
+  await chrome.contextMenus.create({
     id: "sidemarks-add-page",
     title: "＋ このページをSideMarksに追加",
     contexts: PAGE_CONTEXTS
   });
-  chrome.contextMenus.create({
+  await chrome.contextMenus.create({
     id: "sidemarks-add-current-action",
     title: "＋ 現在のページをSideMarksに追加",
     contexts: ["action"]
