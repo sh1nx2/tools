@@ -312,7 +312,7 @@ body[data-view-transition="cascade"] .bookmark-list.view-transitioning > :nth-ch
 @media (prefers-reduced-motion: reduce) {
   .bookmark-list.view-transitioning, .bookmark-list.view-transitioning > * { animation: none !important; }
 }
-.bookmark-list.icon-view { --icon-columns: 4; --app-icon-size: 62px; --app-icon-image-size: 36px; grid-template-columns: repeat(var(--icon-columns), minmax(0, 1fr)); gap: 12px 9px; align-items: start; }
+.bookmark-list.icon-view { --icon-columns: 4; --app-icon-size: calc(62px * var(--bookmark-scale, 1)); --app-icon-image-size: calc(36px * var(--bookmark-scale, 1)); grid-template-columns: repeat(var(--icon-columns), minmax(0, 1fr)); gap: 12px 9px; align-items: start; }
 .bookmark-list.icon-view .folder-title, .bookmark-list.icon-view .folder-drop-zone { grid-column: 1 / -1; }
 .bookmark-list.icon-view .bookmark { display: grid; min-width: 0; min-height: calc(var(--app-icon-size) + 24px); grid-template-columns: 1fr; place-items: center; gap: 0; padding: 10px 3px; border-color: transparent; border-radius: 19px; background: transparent; box-shadow: none; backdrop-filter: none; }
 .bookmark-list.icon-view .bookmark:hover { border-color: color-mix(in srgb, var(--accent) 28%, transparent); background: color-mix(in srgb, var(--surface) 42%, transparent); }
@@ -402,6 +402,8 @@ body[data-interaction-style="invert"] .bookmark:hover:active:not(.dragging) { ba
 .bookmark.drop-target { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, var(--surface)); }
 .bookmark.folder-order-target { box-shadow: inset 0 3px 0 var(--accent); }
 .favicon { display: grid; width: 38px; height: 38px; place-items: center; overflow: hidden; border-radius: 10px; background: color-mix(in srgb, var(--surface-2) 82%, transparent); font-weight: 800; color: var(--accent); }
+.bookmark-list.tile-view .bookmark { min-height: calc(68px * var(--bookmark-scale, 1)); }
+.bookmark-list.tile-view .favicon { width: calc(44px * var(--bookmark-scale, 1)); height: calc(44px * var(--bookmark-scale, 1)); }
 .favicon img { width: 20px; height: 20px; }
 .favicon svg { width: 22px; height: 22px; color: var(--accent); }
 .bookmark-link { min-width: 0; color: inherit; text-decoration: none; }

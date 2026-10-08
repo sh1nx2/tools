@@ -1,4 +1,4 @@
-const DEFAULT_APPEARANCE = { actionColor: "#215c49", bookmarkOpacity: 66, useThemeCards: false, cardMaterial: "glass", tileColumns: 2, showHomeButton: true, showDeleteButton: true, showSplitViewControls: true, actionMenuPosition: "bottom", showTabRail: true, tabRailSide: "left", searchEngine: "web", searchSplitSide: "left", motionIntensity: "strong", interactionStyle: "lift", viewTransition: "fade", genreScrollStyle: "slim", soundEnabled: true, soundTheme: "wood", soundVolume: 40, showBackgroundClock: true, showEventInNormalView: true, backgroundClockSize: 69, backgroundClockPositionX: 50, backgroundClockPositionY: 5.5 };
+const DEFAULT_APPEARANCE = { actionColor: "#215c49", bookmarkOpacity: 66, useThemeCards: false, cardMaterial: "glass", tileColumns: 2, bookmarkScale: 100, showHomeButton: true, showDeleteButton: true, showSplitViewControls: true, actionMenuPosition: "bottom", showTabRail: true, tabRailSide: "left", searchEngine: "web", searchSplitSide: "left", motionIntensity: "strong", interactionStyle: "lift", viewTransition: "fade", genreScrollStyle: "slim", soundEnabled: true, soundTheme: "wood", soundVolume: 40, showBackgroundClock: true, showEventInNormalView: true, backgroundClockSize: 69, backgroundClockPositionX: 50, backgroundClockPositionY: 5.5 };
 const DEFAULT_BACKGROUND = { image: "", opacity: 18, zoom: 100, x: 50, y: 0, fit: "height", layoutVersion: 2 };
 const GAMEWITH_SCHEDULE_URL = "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/28687";
 const GRANBLUE_ICON_IDS = new Set(["home", "quest", "rescue", "raid", "party", "enhance", "evolve", "inventory", "storage", "gacha", "boss", "high-difficulty", "coop-create", "coop-search", "solo", "sage", "drops", "weapon", "character", "summon", "event", "fire", "water", "earth", "wind", "light", "dark", "arcarum", "sandbox"]);
@@ -289,6 +289,8 @@ function bindEvents() {
   window.addEventListener("resize", () => { updateFilterScrollUI(); updateIconGridSize(); });
   $("#decreaseIconColumns").addEventListener("click", () => changeViewColumns(-1));
   $("#increaseIconColumns").addEventListener("click", () => changeViewColumns(1));
+  $("#decreaseBookmarkSize").addEventListener("click", () => changeBookmarkScale(-5));
+  $("#increaseBookmarkSize").addEventListener("click", () => changeBookmarkScale(5));
   $("#themeButton").addEventListener("click", async () => { state.theme = state.theme === "dark" ? "light" : "dark"; state.backgroundPresetAssignments = {}; applyTheme(); await chrome.storage.local.set({ theme: state.theme, backgroundPresetAssignments: state.backgroundPresetAssignments }); });
   $("#backgroundButton").addEventListener("click", openBackgroundDialog);
   $("#closeBackgroundButton").addEventListener("click", () => $("#backgroundDialog").close());
@@ -943,6 +945,7 @@ function applyTheme() {
 
 function applyAppearance(settings = state.appearance) {
   const root = document.documentElement;
+  root.style.setProperty("--bookmark-scale", String((Number(settings.bookmarkScale) || 100) / 100));
   root.style.setProperty("--action-color", settings.actionColor);
   root.style.setProperty("--accent", settings.actionColor);
   root.style.setProperty("--accent-hover", settings.actionColor);
@@ -1819,6 +1822,8 @@ function render() {
   list.style.setProperty("--tile-columns", String(tileColumns));
   list.dataset.tileColumns = String(tileColumns);
   $("#iconGridControls").hidden = bulkMode;
+  $("#decreaseBookmarkSize").disabled = Number(state.appearance.bookmarkScale || 100) <= 80;
+  $("#increaseBookmarkSize").disabled = Number(state.appearance.bookmarkScale || 100) >= 125;
   $("#decreaseIconColumns").disabled = iconView ? (selectedGenre?.iconColumns || 4) <= 2 : tileColumns <= 1;
   $("#increaseIconColumns").disabled = iconView ? (selectedGenre?.iconColumns || 4) >= 6 : tileColumns >= 6;
   $("#listHeading").textContent = state.filter === "favorite" ? "すべてのジャンルのお気に入り" : state.filter === "unassigned" ? "ジャンル未分類" : selectedGenre?.name || "すべてのブックマーク";
@@ -1920,6 +1925,13 @@ async function changeViewColumns(change) {
   }
   render();
   playViewTransition();
+}
+
+async function changeBookmarkScale(change) {
+  state.appearance.bookmarkScale = Math.min(125, Math.max(80, Number(state.appearance.bookmarkScale || 100) + change));
+  await chrome.storage.local.set({ appearance: state.appearance });
+  applyAppearance(state.appearance);
+  renderBookmarks();
 }
 
 function updateIconGridSize() {
