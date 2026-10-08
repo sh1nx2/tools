@@ -315,10 +315,10 @@ body[data-view-transition="cascade"] .bookmark-list.view-transitioning > :nth-ch
 .bookmark-list.icon-view .favicon { width: var(--app-icon-size); height: var(--app-icon-size); border: 1px solid color-mix(in srgb, var(--line) 65%, transparent); border-radius: clamp(12px, calc(var(--app-icon-size) * .29), 24px); background: var(--bookmark-background); box-shadow: 0 5px 15px rgba(24, 38, 31, .12); font-size: clamp(16px, calc(var(--app-icon-size) * .34), 28px); }
 .bookmark-list.icon-view .favicon img { width: var(--app-icon-image-size); height: var(--app-icon-image-size); }
 .bookmark-list.icon-view .favicon img.custom-bookmark-icon {
-  width: calc(var(--app-icon-size) - 10px);
-  height: calc(var(--app-icon-size) - 10px);
+  width: calc(var(--app-icon-size) - 2px);
+  height: calc(var(--app-icon-size) - 2px);
   object-fit: cover;
-  border-radius: clamp(8px, calc(var(--app-icon-size) * .18), 16px);
+  border-radius: inherit;
 }
 .bookmark-list.icon-view .favicon svg { width: var(--app-icon-image-size); height: var(--app-icon-image-size); }
 .bookmark-list.icon-view .bookmark-link { position: absolute; inset: 0; border-radius: inherit; }
@@ -433,10 +433,10 @@ body[data-interaction-style="invert"] .bookmark:hover:active:not(.dragging) { ba
 .bookmark-list.tile-view .favicon { width: 44px; height: 44px; border: 1px solid color-mix(in srgb, var(--line) 58%, transparent); border-radius: 12px; }
 .bookmark-list.tile-view .favicon img { width: 25px; height: 25px; }
 .bookmark-list.tile-view .favicon img.custom-bookmark-icon {
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: inherit;
 }
 .bookmark-list.tile-view .favicon svg { width: 27px; height: 27px; }
 .bookmark-list.tile-view .bookmark-link { display: grid; min-height: 44px; align-items: center; }
