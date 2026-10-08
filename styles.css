@@ -343,13 +343,13 @@ body[data-action-position="bottom"] .bookmark-list.icon-view .item-actions { top
 .bookmark-dragging .folder-title { min-height: 34px; border-color: color-mix(in srgb, var(--accent) 24%, var(--line)); background: color-mix(in srgb, var(--accent) 5%, transparent); }
 .bookmark-dragging .folder-title.drop-target { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 17%, var(--surface)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); }
 .folder-title.dragging { opacity: .4; }
-.folder-drop-zone { display: grid; height: 10px; margin: 0 2px; place-items: center; border-radius: 6px; color: transparent; font-size: 9px; font-weight: 700; transition: height .12s, background .12s, color .12s, outline-color .12s; }
+.folder-drop-zone { display: grid; height: 3px; margin: 0 2px; place-items: center; border-radius: 6px; color: transparent; font-size: 9px; font-weight: 700; transition: height .12s, background .12s, color .12s, outline-color .12s; }
 .folder-drop-zone span { pointer-events: none; }
 .bookmark-folder-drop-zone { height: 0; margin: 0 2px; overflow: hidden; }
-.folder-dragging .folder-drop-zone { height: 30px; background: color-mix(in srgb, var(--accent) 5%, transparent); color: var(--muted); outline: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent); }
-.folder-drop-zone.active, .folder-dragging .folder-drop-zone.active { height: 38px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); outline: 2px solid var(--accent); }
-.folder-drop-zone:last-child { height: 22px; margin-top: 4px; }
-.folder-dragging .folder-drop-zone:last-child { height: 38px; }
+.folder-dragging .folder-drop-zone { height: 24px; background: color-mix(in srgb, var(--accent) 5%, transparent); color: var(--muted); outline: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent); }
+.folder-drop-zone.active, .folder-dragging .folder-drop-zone.active { height: 32px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); outline: 2px solid var(--accent); }
+.folder-drop-zone:last-child { height: 3px; margin-top: 1px; }
+.folder-dragging .folder-drop-zone:last-child { height: 30px; }
 .folder-drop-zone:last-child.active, .folder-dragging .folder-drop-zone:last-child.active { height: 44px; }
 .bookmark-dragging .folder-order-drop-zone { height: 0; margin: 0; overflow: hidden; }
 .bookmark-dragging .bookmark-folder-drop-zone { height: 64px; margin-block: 7px 12px; background: color-mix(in srgb, var(--accent) 8%, transparent); color: var(--muted); outline: 2px dashed color-mix(in srgb, var(--accent) 46%, transparent); }
@@ -413,11 +413,11 @@ body[data-interaction-style="invert"] .bookmark:hover:active:not(.dragging) { ba
 .compact-view .unassigned-badge { padding-inline: 4px; font-size: 7px; }
 .compact-view .item-actions button { width: 25px; height: auto; min-height: 28px; }
 .compact-view .folder-title { min-height: 31px; margin-top: 8px; margin-bottom: 3px; padding: 5px 4px 6px; }
-.compact-view .folder-drop-zone { height: 8px; }
+.compact-view .folder-drop-zone { height: 2px; }
 .compact-view.bookmark-dragging .bookmark-folder-drop-zone { height: 64px; margin-block: 7px 12px; }
 .compact-view.bookmark-dragging .bookmark-folder-drop-zone.active { height: 70px; }
-.compact-view.folder-dragging .folder-drop-zone { height: 28px; }
-.compact-view.folder-dragging .folder-drop-zone.active { height: 36px; }
+.compact-view.folder-dragging .folder-drop-zone { height: 22px; }
+.compact-view.folder-dragging .folder-drop-zone.active { height: 30px; }
 .item-actions { display: flex; align-self: stretch; align-items: stretch; }
 .item-actions button { width: 28px; height: auto; min-height: 32px; border: 0; border-radius: 7px; background: transparent; cursor: pointer; color: var(--muted); }
 .item-actions button:hover { background: var(--surface-2); color: var(--ink); }
