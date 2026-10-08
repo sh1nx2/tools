@@ -359,11 +359,11 @@ body[data-action-position="bottom"] .bookmark-list.icon-view .item-actions { top
 .bookmark-dragging .folder-title { min-height: 34px; border-color: color-mix(in srgb, var(--accent) 24%, var(--line)); background: color-mix(in srgb, var(--accent) 5%, transparent); }
 .bookmark-dragging .folder-title.drop-target { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 17%, var(--surface)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); }
 .folder-title.dragging { opacity: .4; }
-.folder-drop-zone { display: grid; height: 3px; margin: 0 2px; place-items: center; border-radius: 6px; color: transparent; font-size: 9px; font-weight: 700; transition: height .12s, background .12s, color .12s, outline-color .12s; }
+.folder-drop-zone { display: grid; height: 0; margin: 0; overflow: hidden; place-items: center; border-radius: 6px; color: transparent; font-size: 9px; font-weight: 700; transition: height .12s, margin .12s, background .12s, color .12s, outline-color .12s; }
 .folder-drop-zone span { pointer-events: none; }
 .folder-dragging .folder-drop-zone { height: 24px; background: color-mix(in srgb, var(--accent) 5%, transparent); color: var(--muted); outline: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent); }
 .folder-drop-zone.active, .folder-dragging .folder-drop-zone.active { height: 32px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); outline: 2px solid var(--accent); }
-.folder-drop-zone:last-child { height: 3px; margin-top: 1px; }
+.folder-drop-zone:last-child { height: 0; margin-top: 0; }
 .folder-dragging .folder-drop-zone:last-child { height: 30px; }
 .folder-drop-zone:last-child.active, .folder-dragging .folder-drop-zone:last-child.active { height: 44px; }
 .bookmark-dragging .folder-order-drop-zone { height: 0; margin: 0; overflow: hidden; }
