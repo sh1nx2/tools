@@ -97,6 +97,8 @@ let clockDrag = null;
 let uiAudioContext = null;
 let editingCustomIcon = "";
 let editingIconPreset = "";
+let editingCropSource = "";
+let editingCropImage = null;
 let draggedBackgroundPresetId = null;
 let tabShelfOpen = false;
 let tabRefreshTimer = 0;
@@ -344,9 +346,10 @@ function bindEvents() {
   $("#editForm").addEventListener("submit", saveEdit);
   $("#customIconInput").addEventListener("change", loadCustomIcon);
   $("#pasteCustomIconButton").addEventListener("click", pasteCustomIcon);
-  $("#editDialog").addEventListener("paste", handleCustomIconPaste);
+  document.addEventListener("paste", handleCustomIconPaste);
+  ["customIconCropZoom", "customIconCropX", "customIconCropY"].forEach((id) => $("#" + id).addEventListener("input", renderCustomIconCrop));
   $("#iconCategorySelect").addEventListener("change", renderBuiltinIconPicker);
-  $("#removeCustomIconButton").addEventListener("click", () => { editingCustomIcon = ""; editingIconPreset = ""; updateCustomIconPreview(); });
+  $("#removeCustomIconButton").addEventListener("click", () => { editingCustomIcon = ""; editingIconPreset = ""; clearCustomIconCrop(); updateCustomIconPreview(); });
   $("#folderSelect").addEventListener("change", handleFolderSelection);
   $("#bulkModeButton").addEventListener("click", () => toggleBulkMode(true));
   $("#closeBulkModeButton").addEventListener("click", () => toggleBulkMode(false));
@@ -2553,6 +2556,7 @@ function renderBuiltinIconPicker() {
     button.addEventListener("click", () => {
       editingIconPreset = icon.id;
       editingCustomIcon = "";
+      clearCustomIconCrop();
       updateCustomIconPreview();
     });
     return button;
@@ -2562,23 +2566,43 @@ function renderBuiltinIconPicker() {
 async function applyCustomIconImage(file) {
   if (!file || !file.type?.startsWith("image/")) return false;
   try {
-    const bitmap = await createImageBitmap(file);
-    const canvas = document.createElement("canvas");
-    canvas.width = 128;
-    canvas.height = 128;
-    const scale = Math.min(canvas.width / bitmap.width, canvas.height / bitmap.height);
-    const width = Math.max(1, Math.round(bitmap.width * scale));
-    const height = Math.max(1, Math.round(bitmap.height * scale));
-    canvas.getContext("2d").drawImage(bitmap, Math.round((128 - width) / 2), Math.round((128 - height) / 2), width, height);
-    bitmap.close();
-    editingCustomIcon = canvas.toDataURL("image/png");
+    if (editingCropImage?.close) editingCropImage.close();
+    editingCropImage = await createImageBitmap(file);
+    editingCropSource = "clipboard-or-file";
+    $("#customIconCropEditor").hidden = false;
+    $("#customIconCropZoom").value = "100";
+    $("#customIconCropX").value = "50";
+    $("#customIconCropY").value = "50";
+    renderCustomIconCrop();
     editingIconPreset = "";
-    updateCustomIconPreview();
     return true;
   } catch {
     showToast("アイコン画像を読み込めませんでした");
     return false;
   }
+}
+
+function clearCustomIconCrop() {
+  if (editingCropImage?.close) editingCropImage.close();
+  editingCropImage = null;
+  editingCropSource = "";
+  $("#customIconCropEditor").hidden = true;
+}
+
+function renderCustomIconCrop() {
+  if (!editingCropImage) return;
+  const canvas = $("#customIconCropCanvas");
+  const context = canvas.getContext("2d");
+  const zoom = Number($("#customIconCropZoom").value || 100) / 100;
+  const x = Number($("#customIconCropX").value || 50) / 100;
+  const y = Number($("#customIconCropY").value || 50) / 100;
+  const side = Math.min(editingCropImage.width, editingCropImage.height) / zoom;
+  const sx = (editingCropImage.width - side) * x;
+  const sy = (editingCropImage.height - side) * y;
+  context.clearRect(0, 0, 128, 128);
+  context.drawImage(editingCropImage, sx, sy, side, side, 0, 0, 128, 128);
+  editingCustomIcon = canvas.toDataURL("image/png");
+  updateCustomIconPreview();
 }
 
 async function loadCustomIcon(event) {
@@ -2617,6 +2641,7 @@ function openEditor(item) {
   $("#urlInput").value = item.url;
   editingCustomIcon = item.customIcon || "";
   editingIconPreset = item.iconPreset || "";
+  clearCustomIconCrop();
   $("#iconCategorySelect").value = BUILTIN_ICONS.find((icon) => icon.id === editingIconPreset)?.category || "general";
   renderBuiltinIconPicker();
   updateCustomIconPreview(item);

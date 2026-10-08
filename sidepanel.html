@@ -147,6 +147,12 @@
             <button id="pasteCustomIconButton" class="secondary-button paste-icon-button" type="button">貼り付け</button>
             <button id="removeCustomIconButton" class="text-button" type="button">標準に戻す</button>
           </div>
+          <div id="customIconCropEditor" class="custom-icon-crop-editor" hidden>
+            <canvas id="customIconCropCanvas" width="128" height="128" aria-label="アイコン切り抜きプレビュー"></canvas>
+            <label>拡大 <input id="customIconCropZoom" type="range" min="100" max="300" value="100"></label>
+            <label>左右 <input id="customIconCropX" type="range" min="0" max="100" value="50"></label>
+            <label>上下 <input id="customIconCropY" type="range" min="0" max="100" value="50"></label>
+          </div>
           <small>標準アイコンを選ぶか、画像を選択・貼り付けできます。編集中に Ctrl+V でも貼り付けできます。画像は正方形に収まるよう縮小して、この端末内へ保存されます。</small>
         </div>
         <label>ジャンル

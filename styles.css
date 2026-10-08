@@ -690,6 +690,11 @@ dialog input:focus, dialog select:focus, dialog textarea:focus { border-color: v
 .custom-icon-preview { display: grid; width: 46px; height: 46px; flex: 0 0 46px; place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--surface-2) 82%, transparent); color: var(--accent); font-size: 17px; }
 .custom-icon-preview img { width: 30px; height: 30px; object-fit: contain; }
 .custom-icon-preview svg { width: 30px; height: 30px; color: var(--accent); }
+.custom-icon-crop-editor { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 4px 8px; align-items: center; padding: 7px; border: 1px solid var(--line); border-radius: 9px; background: color-mix(in srgb, var(--surface-2) 48%, transparent); }
+.custom-icon-crop-editor[hidden] { display: none; }
+.custom-icon-crop-editor canvas { grid-row: 1 / span 3; width: 68px; height: 68px; border-radius: 8px; background: var(--surface); image-rendering: auto; }
+.custom-icon-crop-editor label { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 5px; align-items: center; color: var(--muted); font-size: 8px; font-weight: 650; }
+.custom-icon-crop-editor input { min-width: 0; padding: 0; }
 .custom-icon-preview span[hidden], .custom-icon-preview img[hidden] { display: none; }
 .custom-icon-editor small { color: var(--muted); font-size: 9px; font-weight: 500; line-height: 1.45; }
 .background-preview { position: relative; width: 100%; height: 210px; margin: 14px auto 0; overflow: hidden; border: 2px solid var(--accent); border-radius: 12px; background-color: var(--bg); background-image: linear-gradient(45deg, color-mix(in srgb, var(--line) 45%, transparent) 25%, transparent 25%), linear-gradient(-45deg, color-mix(in srgb, var(--line) 45%, transparent) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, color-mix(in srgb, var(--line) 45%, transparent) 75%), linear-gradient(-45deg, transparent 75%, color-mix(in srgb, var(--line) 45%, transparent) 75%); background-position: 0 0, 0 8px, 8px -8px, -8px 0; background-size: 16px 16px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--surface) 65%, transparent); }
