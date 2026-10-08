@@ -345,16 +345,12 @@ body[data-action-position="bottom"] .bookmark-list.icon-view .item-actions { top
 .folder-title.dragging { opacity: .4; }
 .folder-drop-zone { display: grid; height: 3px; margin: 0 2px; place-items: center; border-radius: 6px; color: transparent; font-size: 9px; font-weight: 700; transition: height .12s, background .12s, color .12s, outline-color .12s; }
 .folder-drop-zone span { pointer-events: none; }
-.bookmark-folder-drop-zone { height: 0; margin: 0 2px; overflow: hidden; }
 .folder-dragging .folder-drop-zone { height: 24px; background: color-mix(in srgb, var(--accent) 5%, transparent); color: var(--muted); outline: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent); }
 .folder-drop-zone.active, .folder-dragging .folder-drop-zone.active { height: 32px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); outline: 2px solid var(--accent); }
 .folder-drop-zone:last-child { height: 3px; margin-top: 1px; }
 .folder-dragging .folder-drop-zone:last-child { height: 30px; }
 .folder-drop-zone:last-child.active, .folder-dragging .folder-drop-zone:last-child.active { height: 44px; }
 .bookmark-dragging .folder-order-drop-zone { height: 0; margin: 0; overflow: hidden; }
-.bookmark-dragging .bookmark-folder-drop-zone { height: 64px; margin-block: 7px 12px; background: color-mix(in srgb, var(--accent) 8%, transparent); color: var(--muted); outline: 2px dashed color-mix(in srgb, var(--accent) 46%, transparent); }
-.bookmark-dragging .bookmark-folder-drop-zone.active { height: 70px; background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); outline: 2px solid var(--accent); }
-.folder-dragging .bookmark-folder-drop-zone { display: none; }
 .bookmark { position: relative; isolation: isolate; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; border: 1px solid color-mix(in srgb, var(--line) 58%, transparent); border-radius: 14px; background: var(--bookmark-background); color: var(--ui-ink); box-shadow: 0 2px 8px rgba(30, 40, 35, .05); backdrop-filter: blur(10px) saturate(1.08); cursor: pointer; transition: transform var(--motion-duration) ease, border-color var(--motion-duration), background var(--motion-duration), box-shadow var(--motion-duration); }
 .bookmark::after { position: absolute; z-index: -1; top: -2px; right: -3px; bottom: calc(var(--motion-hover-buffer) * -1); left: -3px; content: ""; pointer-events: none; }
 .bookmark:hover::after { pointer-events: auto; }
@@ -414,8 +410,6 @@ body[data-interaction-style="invert"] .bookmark:hover:active:not(.dragging) { ba
 .compact-view .item-actions button { width: 25px; height: auto; min-height: 28px; }
 .compact-view .folder-title { min-height: 31px; margin-top: 8px; margin-bottom: 3px; padding: 5px 4px 6px; }
 .compact-view .folder-drop-zone { height: 2px; }
-.compact-view.bookmark-dragging .bookmark-folder-drop-zone { height: 64px; margin-block: 7px 12px; }
-.compact-view.bookmark-dragging .bookmark-folder-drop-zone.active { height: 70px; }
 .compact-view.folder-dragging .folder-drop-zone { height: 22px; }
 .compact-view.folder-dragging .folder-drop-zone.active { height: 30px; }
 .item-actions { display: flex; align-self: stretch; align-items: stretch; }

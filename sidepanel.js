@@ -1949,12 +1949,8 @@ function render() {
         setTimeout(() => { folderWasDragged = false; }, 0);
       });
       list.append(heading);
-    if (state.collapsedFolders.has(folder)) {
-      list.append(createBookmarkFolderDropZone(folder));
-      continue;
-    }
+    if (state.collapsedFolders.has(folder)) continue;
     for (const item of grouped.get(folder)) list.append(createItem(item));
-    list.append(createBookmarkFolderDropZone(folder));
   }
   if (!hideOnlyUnclassifiedHeading) list.append(createFolderDropZone(visibleFolders.at(-1), true, "末尾へ移動"));
   if (iconView) requestAnimationFrame(updateIconGridSize);
@@ -2197,31 +2193,6 @@ function createFolderDropZone(targetFolder, placeAfter, label) {
     event.stopPropagation();
     zone.classList.remove("active");
     await reorderFolder(draggedFolder, targetFolder, placeAfter);
-  });
-  return zone;
-}
-
-function createBookmarkFolderDropZone(targetFolder) {
-  const zone = document.createElement("div");
-  zone.className = "folder-drop-zone bookmark-folder-drop-zone";
-  const hint = document.createElement("span");
-  hint.className = "bookmark-folder-drop-hint";
-  hint.textContent = `「${targetFolder}」の末尾へ移動`;
-  zone.append(hint);
-  zone.addEventListener("dragover", (event) => {
-    if (!draggedBookmarkId) return;
-    event.preventDefault();
-    event.stopPropagation();
-    event.dataTransfer.dropEffect = "move";
-    zone.classList.add("active");
-  });
-  zone.addEventListener("dragleave", () => zone.classList.remove("active"));
-  zone.addEventListener("drop", async (event) => {
-    if (!draggedBookmarkId) return;
-    event.preventDefault();
-    event.stopPropagation();
-    zone.classList.remove("active");
-    await moveBookmarkToFolder(getDroppedBookmarkId(event), targetFolder, true);
   });
   return zone;
 }
