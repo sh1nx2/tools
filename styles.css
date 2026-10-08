@@ -684,6 +684,7 @@ dialog input:focus, dialog select:focus, dialog textarea:focus { border-color: v
 .builtin-icon-option.selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 13%, var(--surface)); color: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); }
 .custom-icon-row { display: flex; align-items: center; gap: 8px; }
 .custom-icon-row .file-button { margin: 0; padding: 7px 9px; font-size: 11px; }
+.custom-icon-row .paste-icon-button { width: auto; margin: 0; padding: 7px 9px; font-size: 11px; }
 .custom-icon-row .text-button { font-size: 11px; }
 .custom-icon-row .text-button:disabled { cursor: default; opacity: .4; }
 .custom-icon-preview { display: grid; width: 46px; height: 46px; flex: 0 0 46px; place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--surface-2) 82%, transparent); color: var(--accent); font-size: 17px; }

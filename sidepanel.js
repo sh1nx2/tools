@@ -343,6 +343,8 @@ function bindEvents() {
   });
   $("#editForm").addEventListener("submit", saveEdit);
   $("#customIconInput").addEventListener("change", loadCustomIcon);
+  $("#pasteCustomIconButton").addEventListener("click", pasteCustomIcon);
+  $("#editDialog").addEventListener("paste", handleCustomIconPaste);
   $("#iconCategorySelect").addEventListener("change", renderBuiltinIconPicker);
   $("#removeCustomIconButton").addEventListener("click", () => { editingCustomIcon = ""; editingIconPreset = ""; updateCustomIconPreview(); });
   $("#folderSelect").addEventListener("change", handleFolderSelection);
@@ -2557,9 +2559,8 @@ function renderBuiltinIconPicker() {
   }));
 }
 
-async function loadCustomIcon(event) {
-  const file = event.target.files?.[0];
-  if (!file) return;
+async function applyCustomIconImage(file) {
+  if (!file || !file.type?.startsWith("image/")) return false;
   try {
     const bitmap = await createImageBitmap(file);
     const canvas = document.createElement("canvas");
@@ -2573,10 +2574,41 @@ async function loadCustomIcon(event) {
     editingCustomIcon = canvas.toDataURL("image/png");
     editingIconPreset = "";
     updateCustomIconPreview();
+    return true;
   } catch {
     showToast("アイコン画像を読み込めませんでした");
+    return false;
   }
+}
+
+async function loadCustomIcon(event) {
+  const file = event.target.files?.[0];
+  await applyCustomIconImage(file);
   event.target.value = "";
+}
+
+async function pasteCustomIcon() {
+  try {
+    if (!navigator.clipboard?.read) throw new Error("clipboard-read-unavailable");
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+      const imageType = item.types.find((type) => type.startsWith("image/"));
+      if (!imageType) continue;
+      const blob = await item.getType(imageType);
+      if (await applyCustomIconImage(blob)) return;
+    }
+    showToast("クリップボードに画像がありません");
+  } catch {
+    showToast("画像を貼り付けできませんでした。Ctrl+Vも試してください");
+  }
+}
+
+function handleCustomIconPaste(event) {
+  if (!$("#editDialog").open) return;
+  const imageItem = [...(event.clipboardData?.items || [])].find((item) => item.type.startsWith("image/"));
+  if (!imageItem) return;
+  event.preventDefault();
+  applyCustomIconImage(imageItem.getAsFile());
 }
 
 function openEditor(item) {
