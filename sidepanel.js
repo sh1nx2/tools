@@ -75,7 +75,7 @@ const BUILTIN_ICONS = [
   ["book", "読書", '<path d="M4 5c3-1 5-.5 8 2v14c-3-2.5-5-3-8-2zM20 5c-3-1-5-.5-8 2v14c3-2.5 5-3 8-2z"/>'],
   ["gift", "プレゼント", '<path d="M3 10h18v11H3zM2 6h20v4H2zM12 6v15"/><path d="M12 6c-4 0-6-1-6-3 3-1 5 0 6 3zm0 0c4 0 6-1 6-3-3-1-5 0-6 3z"/>']
 ].map(([id, label, content]) => ({ id, label, content, category: GRANBLUE_ICON_IDS.has(id) ? "granblue" : Object.entries(ICON_CATEGORIES).find(([, ids]) => ids.has(id))?.[0] || "general" }));
-const state = { bookmarks: [], topSites: [], openTabs: [], filter: "all", theme: "light", homeBookmarkId: null, currentUrl: "", splitView: null, collapsedFolders: new Set(), folderOrder: [], genres: [], favoriteTabIndex: 0, background: { ...DEFAULT_BACKGROUND }, genreBackgrounds: {}, backgroundTransition: "crossfade", backgroundPresets: [], backgroundPresetAssignments: {}, appearance: { ...DEFAULT_APPEARANCE }, eventSchedule: null, gameWithLastFetchedAt: 0 };
+const state = { bookmarks: [], openTabs: [], filter: "all", theme: "light", homeBookmarkId: null, currentUrl: "", splitView: null, collapsedFolders: new Set(), folderOrder: [], genres: [], favoriteTabIndex: 0, background: { ...DEFAULT_BACKGROUND }, genreBackgrounds: {}, backgroundTransition: "crossfade", backgroundPresets: [], backgroundPresetAssignments: {}, appearance: { ...DEFAULT_APPEARANCE }, eventSchedule: null, gameWithLastFetchedAt: 0 };
 const $ = (selector) => document.querySelector(selector);
 const list = $("#bookmarkList");
 const emptyState = $("#emptyState");
@@ -179,7 +179,6 @@ async function init() {
   state.appearance = { ...state.appearance, ...(saved.appearance || {}) };
   state.eventSchedule = normalizeEventSchedule(saved.eventSchedule);
   state.gameWithLastFetchedAt = Number(saved.gameWithLastFetchedAt) || state.eventSchedule?.fetchedAt || 0;
-  await refreshTopSites();
   await refreshOpenTabs();
   if (saved.background && saved.background.layoutVersion !== 2) {
     state.background.y = Number(saved.background.y ?? 50) - 50;
@@ -357,8 +356,6 @@ function bindEvents() {
   $("#bulkFolderSelect").addEventListener("change", handleBulkFolderSelection);
   $("#saveBulkEditButton").addEventListener("click", applyBulkEdit);
   $("#bulkDeleteButton").addEventListener("click", deleteSelectedBookmarks);
-  $("#suggestionsButton").addEventListener("click", openSuggestionsDialog);
-  $("#closeSuggestionsButton").addEventListener("click", () => $("#suggestionsDialog").close());
   $("#moreButton").addEventListener("click", () => $("#dataDialog").showModal());
   $("#closeDataButton").addEventListener("click", () => $("#dataDialog").close());
   $("#exportButton").addEventListener("click", exportData);
@@ -1799,60 +1796,6 @@ function filteredItems() {
     if (state.filter === "unassigned") return !hasValidGenre(item);
     return !genreFilter || item.genreId === genreFilter;
   });
-}
-
-async function refreshTopSites() {
-  try { state.topSites = (await chrome.topSites.get()).filter((site) => /^https?:/.test(site.url)); }
-  catch { state.topSites = []; }
-}
-
-function renderBookmarkSuggestions() {
-  const section = $("#bookmarkSuggestions");
-  const registered = new Set(state.bookmarks.map((item) => normalizeUrl(item.url)));
-  const suggestions = state.topSites.filter((site) => !registered.has(normalizeUrl(site.url))).slice(0, 6);
-  section.hidden = !suggestions.length;
-  $("#noBookmarkSuggestions").hidden = Boolean(suggestions.length);
-  const container = $("#bookmarkSuggestionList");
-  container.replaceChildren(...suggestions.map((site) => {
-    const row = document.createElement("div");
-    row.className = "bookmark-suggestion";
-    const icon = document.createElement("button");
-    icon.type = "button";
-    icon.className = "suggestion-icon";
-    setBookmarkIcon(icon, { title: site.title, url: site.url, customIcon: "", iconPreset: "" });
-    const open = document.createElement("button");
-    open.type = "button";
-    open.className = "suggestion-open";
-    open.textContent = site.title || safeDomain(site.url);
-    open.title = `${site.url}\n現在のタブで開く`;
-    open.addEventListener("click", async () => {
-      const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (activeTab?.id) await chrome.tabs.update(activeTab.id, { url: site.url });
-    });
-    const add = Object.assign(document.createElement("button"), { type: "button", textContent: "+", title: "ブックマークに追加" });
-    add.className = "suggestion-add";
-    add.addEventListener("click", () => addSuggestedSite(site));
-    icon.addEventListener("click", () => open.click());
-    icon.title = "現在のタブで開く";
-    icon.setAttribute("aria-label", `${site.title || safeDomain(site.url)}を現在のタブで開く`);
-    row.append(icon, open, add);
-    return row;
-  }));
-}
-
-async function openSuggestionsDialog() {
-  await refreshTopSites();
-  renderBookmarkSuggestions();
-  $("#suggestionsDialog").showModal();
-}
-
-async function addSuggestedSite(site) {
-  if (state.bookmarks.some((item) => normalizeUrl(item.url) === normalizeUrl(site.url))) return renderBookmarkSuggestions();
-  const activeGenreId = state.filter.startsWith("genre:") ? state.filter.slice(6) : null;
-  const undoSnapshot = createUndoSnapshot();
-  state.bookmarks.unshift({ id: crypto.randomUUID(), title: site.title || site.url, url: site.url, folder: "未分類", genreId: activeGenreId, favorite: false, createdAt: Date.now() });
-  await persist("おすすめから追加しました", undoSnapshot);
-  renderBookmarkSuggestions();
 }
 
 function render() {

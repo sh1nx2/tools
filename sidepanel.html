@@ -97,7 +97,6 @@
           <button id="toggleAllFoldersButton" class="text-button folder-toggle-button" type="button" aria-label="表示中のフォルダを折りたたむ" title="表示中のフォルダを折りたたむ" hidden>▾</button>
         </div>
         <div class="section-actions">
-          <button id="suggestionsButton" class="text-button" type="button">おすすめ</button>
           <button id="bulkModeButton" class="text-button" type="button">複数選択</button>
           <button id="moreButton" class="text-button" type="button">データ管理</button>
         </div>
@@ -227,7 +226,7 @@
       </div>
     </dialog>
 
-    <dialog id="suggestionsDialog">
+    <dialog id="suggestionsDialog" hidden>
       <div class="dialog-heading"><h2>おすすめサイト</h2><button id="closeSuggestionsButton" class="icon-button" type="button">×</button></div>
       <p class="dialog-note">Chromeでよくアクセスするサイトのうち、まだブックマークに登録していないものを表示します。</p>
       <section id="bookmarkSuggestions" class="bookmark-suggestions" hidden>

@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "SideMarks",
-  "version": "2.27.7",
+  "version": "2.27.8",
   "description": "右側のサイドパネルで、よく見るページをジャンルやフォルダに整理してすばやく開けます。",
-  "permissions": ["storage", "unlimitedStorage", "tabs", "topSites", "sidePanel", "contextMenus", "favicon", "clipboardRead"],
+  "permissions": ["storage", "unlimitedStorage", "tabs", "sidePanel", "contextMenus", "favicon", "clipboardRead"],
   "optional_host_permissions": ["https://*.gamewith.jp/*"],
   "background": {
     "service_worker": "background.js"
