@@ -60,21 +60,9 @@ body[data-motion="strong"] { --motion-card-scale: 1.03; --motion-card-shift: -6p
 .custom-background img.active { opacity: var(--layer-opacity, .18); }
 .custom-background[data-transition="blur"] img.blur-hidden { filter: blur(12px); }
 .custom-background[data-transition="none"] img { transition: none; }
-.background-only > .filter-scroll-shell, .background-only > .normal-event-panel, .background-only > .granblue-progress-widget, .background-only > main, .background-only > .toast { display: none !important; }
-.background-only > .tab-shelf-bookmark, .background-only > .tab-shelf-panel { display: none !important; }
-.background-only > header { margin-right: 0 !important; margin-left: 0 !important; }
 .hide-tab-rail > .tab-shelf-bookmark, .hide-tab-rail > .tab-shelf-panel { display: none !important; }
-.background-only header .header-actions, .background-only header #addCurrentButton, .background-only header .quick-search { display: none; }
-.background-only header #undoButton { visibility: hidden; }
-.background-only #backgroundOnlyButton { border: 1px solid color-mix(in srgb, var(--line) 55%, transparent); background: color-mix(in srgb, var(--surface) 42%, transparent); opacity: .68; backdrop-filter: blur(7px); }
-.background-only #backgroundOnlyButton:hover, .background-only #backgroundOnlyButton:focus-visible { background: color-mix(in srgb, var(--surface) 70%, transparent); opacity: 1; }
 .background-clock { position: fixed; z-index: 3; top: var(--background-clock-y); left: var(--background-clock-x); display: none; max-width: calc(100vw - 16px); padding: 12px; align-items: center; border: 1px solid transparent; border-radius: 10px; color: var(--accent); text-align: center; text-shadow: 0 1px 5px color-mix(in srgb, var(--bg) 82%, transparent); transform: translate(var(--background-clock-translate-x), var(--background-clock-translate-y)); pointer-events: none; }
-.background-only > .background-clock { display: flex; flex-direction: column; }
 .hide-background-clock .background-clock { display: none !important; }
-.hide-background-only-button #backgroundOnlyButton { display: none; }
-.background-only > .background-clock { cursor: grab; pointer-events: auto; touch-action: none; user-select: none; }
-.background-only > .background-clock:hover, .background-only > .background-clock.dragging { border-color: color-mix(in srgb, var(--ink) 28%, transparent); background: color-mix(in srgb, var(--surface) 16%, transparent); }
-.background-only > .background-clock.dragging { cursor: grabbing; }
 .clock-position-guide { position: fixed; z-index: 2; display: none; background: color-mix(in srgb, var(--accent) 72%, transparent); pointer-events: none; }
 .clock-position-guide.visible { display: block; }
 .clock-position-guide-x { top: 0; bottom: 0; width: 1px; }

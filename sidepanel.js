@@ -1,4 +1,4 @@
-const DEFAULT_APPEARANCE = { actionColor: "#215c49", bookmarkOpacity: 66, useThemeCards: false, cardMaterial: "glass", tileColumns: 2, showHomeButton: true, showDeleteButton: true, showSplitViewControls: true, actionMenuPosition: "bottom", showTabRail: true, tabRailSide: "left", searchEngine: "web", searchSplitSide: "left", motionIntensity: "strong", interactionStyle: "lift", viewTransition: "fade", genreScrollStyle: "slim", soundEnabled: true, soundTheme: "wood", soundVolume: 40, showBackgroundOnlyButton: true, showBackgroundClock: true, showEventInNormalView: true, backgroundClockSize: 69, backgroundClockPositionX: 50, backgroundClockPositionY: 5.5 };
+const DEFAULT_APPEARANCE = { actionColor: "#215c49", bookmarkOpacity: 66, useThemeCards: false, cardMaterial: "glass", tileColumns: 2, showHomeButton: true, showDeleteButton: true, showSplitViewControls: true, actionMenuPosition: "bottom", showTabRail: true, tabRailSide: "left", searchEngine: "web", searchSplitSide: "left", motionIntensity: "strong", interactionStyle: "lift", viewTransition: "fade", genreScrollStyle: "slim", soundEnabled: true, soundTheme: "wood", soundVolume: 40, showBackgroundClock: true, showEventInNormalView: true, backgroundClockSize: 69, backgroundClockPositionX: 50, backgroundClockPositionY: 5.5 };
 const DEFAULT_BACKGROUND = { image: "", opacity: 18, zoom: 100, x: 50, y: 0, fit: "height", layoutVersion: 2 };
 const GAMEWITH_SCHEDULE_URL = "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/28687";
 const GRANBLUE_ICON_IDS = new Set(["home", "quest", "rescue", "raid", "party", "enhance", "evolve", "inventory", "storage", "gacha", "boss", "high-difficulty", "coop-create", "coop-search", "solo", "sage", "drops", "weapon", "character", "summon", "event", "fire", "water", "earth", "wind", "light", "dark", "arcarum", "sandbox"]);
@@ -292,7 +292,6 @@ function bindEvents() {
   $("#increaseIconColumns").addEventListener("click", () => changeViewColumns(1));
   $("#themeButton").addEventListener("click", async () => { state.theme = state.theme === "dark" ? "light" : "dark"; state.backgroundPresetAssignments = {}; applyTheme(); await chrome.storage.local.set({ theme: state.theme, backgroundPresetAssignments: state.backgroundPresetAssignments }); });
   $("#backgroundButton").addEventListener("click", openBackgroundDialog);
-  $("#backgroundOnlyButton").addEventListener("click", () => setBackgroundOnlyMode(!document.body.classList.contains("background-only")));
   $("#closeBackgroundButton").addEventListener("click", () => $("#backgroundDialog").close());
   $("#settingsButton").addEventListener("click", openSettingsDialog);
   $("#tutorialButton").addEventListener("click", openTutorial);
@@ -317,7 +316,6 @@ function bindEvents() {
   $("#tabRailSide").addEventListener("change", previewAppearanceSettings);
   $("#showBackgroundClock").addEventListener("change", previewAppearanceSettings);
   $("#showEventInNormalView").addEventListener("change", previewAppearanceSettings);
-  $("#showBackgroundOnlyButton").addEventListener("change", previewAppearanceSettings);
   $("#cardMaterial").addEventListener("change", previewAppearanceSettings);
   $("#motionIntensity").addEventListener("change", previewAppearanceSettings);
   $("#interactionStyle").addEventListener("change", previewAppearanceSettings);
@@ -395,9 +393,6 @@ function bindEvents() {
   $("#backgroundClock").addEventListener("pointercancel", finishClockDrag);
   document.addEventListener("dragend", scheduleBookmarkDragCleanup, true);
   document.addEventListener("dragover", autoScrollBookmarkDrag, { passive: false });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && document.body.classList.contains("background-only") && !document.querySelector("dialog[open]")) setBackgroundOnlyMode(false);
-  });
   document.addEventListener("click", (event) => {
     if (event.isTrusted && event.target.closest(".bookmark:not(.appearance-card-preview), #filterBar .filter")) playUISound("click");
   }, true);
@@ -677,15 +672,6 @@ function updateFilterScrollUI() {
   shell.classList.toggle("can-scroll-right", canScrollRight);
   $("#filterScrollLeft").disabled = !canScrollLeft;
   $("#filterScrollRight").disabled = !canScrollRight;
-}
-
-function setBackgroundOnlyMode(enabled) {
-  document.body.classList.toggle("background-only", enabled);
-  const button = $("#backgroundOnlyButton");
-  button.title = enabled ? "ブックマーク表示に戻る" : "背景だけを表示";
-  button.setAttribute("aria-label", button.title);
-  button.setAttribute("aria-pressed", String(enabled));
-  button.focus();
 }
 
 function updateBackgroundClock() {
@@ -985,7 +971,6 @@ function applyAppearance(settings = state.appearance) {
   document.body.classList.toggle("hide-tab-rail", settings.showTabRail === false);
   document.body.classList.toggle("hide-background-clock", settings.showBackgroundClock === false);
   document.body.classList.toggle("hide-normal-event", settings.showEventInNormalView === false);
-  document.body.classList.toggle("hide-background-only-button", settings.showBackgroundOnlyButton !== true);
   root.style.setProperty("--background-clock-size", `${Number(settings.backgroundClockSize) || DEFAULT_APPEARANCE.backgroundClockSize}px`);
   const clockX = Number.isFinite(Number(settings.backgroundClockPositionX)) ? Number(settings.backgroundClockPositionX) : DEFAULT_APPEARANCE.backgroundClockPositionX;
   const clockY = Number.isFinite(Number(settings.backgroundClockPositionY)) ? Number(settings.backgroundClockPositionY) : DEFAULT_APPEARANCE.backgroundClockPositionY;
@@ -1469,7 +1454,6 @@ function setAppearanceInputs(settings) {
   $("#tabRailSide").value = settings.tabRailSide === "right" ? "right" : "left";
   $("#showBackgroundClock").checked = settings.showBackgroundClock !== false;
   $("#showEventInNormalView").checked = settings.showEventInNormalView !== false;
-  $("#showBackgroundOnlyButton").checked = settings.showBackgroundOnlyButton === true;
   $("#backgroundClockSize").value = Number(settings.backgroundClockSize) || DEFAULT_APPEARANCE.backgroundClockSize;
   $("#backgroundClockPositionX").value = Number.isFinite(Number(settings.backgroundClockPositionX)) ? Number(settings.backgroundClockPositionX) : DEFAULT_APPEARANCE.backgroundClockPositionX;
   $("#backgroundClockPositionY").value = Number.isFinite(Number(settings.backgroundClockPositionY)) ? Number(settings.backgroundClockPositionY) : DEFAULT_APPEARANCE.backgroundClockPositionY;
@@ -1503,7 +1487,6 @@ async function saveAppearance() {
     actionMenuPosition: $("#actionMenuPosition").value,
     showTabRail: $("#showTabRail").checked,
     tabRailSide: $("#tabRailSide").value,
-    showBackgroundOnlyButton: $("#showBackgroundOnlyButton").checked,
     showBackgroundClock: $("#showBackgroundClock").checked,
     showEventInNormalView: $("#showEventInNormalView").checked,
     backgroundClockSize: Number($("#backgroundClockSize").value),
@@ -1539,7 +1522,6 @@ function previewAppearanceSettings() {
     actionMenuPosition: $("#actionMenuPosition").value,
     showTabRail: $("#showTabRail").checked,
     tabRailSide: $("#tabRailSide").value,
-    showBackgroundOnlyButton: $("#showBackgroundOnlyButton").checked,
     showBackgroundClock: $("#showBackgroundClock").checked,
     showEventInNormalView: $("#showEventInNormalView").checked,
     backgroundClockSize: Number($("#backgroundClockSize").value),
