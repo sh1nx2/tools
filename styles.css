@@ -437,6 +437,7 @@ body[data-interaction-style="invert"] .bookmark:hover:active:not(.dragging) { ba
 .compact-view.folder-dragging .folder-drop-zone.active { height: 30px; }
 .item-actions { display: flex; align-self: stretch; align-items: stretch; }
 .item-actions button { width: 28px; height: auto; min-height: 32px; border: 0; border-radius: 7px; background: transparent; cursor: pointer; color: var(--muted); }
+.hide-bookmark-actions .item-actions { display: none !important; }
 .item-actions button:hover { background: var(--surface-2); color: var(--ink); }
 .item-actions .delete-item svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .item-actions .delete-item:hover { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }

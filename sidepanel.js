@@ -1,4 +1,4 @@
-const DEFAULT_APPEARANCE = { actionColor: "#215c49", bookmarkOpacity: 66, useThemeCards: false, cardMaterial: "glass", tileColumns: 2, bookmarkScale: 100, showHomeButton: true, showDeleteButton: true, showSplitViewControls: true, actionMenuPosition: "bottom", showTabRail: true, tabRailSide: "left", searchEngine: "web", searchSplitSide: "left", motionIntensity: "strong", interactionStyle: "lift", viewTransition: "fade", genreScrollStyle: "slim", soundEnabled: true, soundTheme: "wood", soundVolume: 40, showBackgroundClock: true, showEventInNormalView: true, backgroundClockSize: 69, backgroundClockPositionX: 50, backgroundClockPositionY: 5.5 };
+const DEFAULT_APPEARANCE = { actionColor: "#215c49", bookmarkOpacity: 66, useThemeCards: false, cardMaterial: "glass", tileColumns: 2, bookmarkScale: 100, showActionButtons: true, showHomeButton: true, showDeleteButton: true, showSplitViewControls: true, actionMenuPosition: "bottom", showTabRail: true, tabRailSide: "left", searchEngine: "web", searchSplitSide: "left", motionIntensity: "strong", interactionStyle: "lift", viewTransition: "fade", genreScrollStyle: "slim", soundEnabled: true, soundTheme: "wood", soundVolume: 40, showBackgroundClock: true, showEventInNormalView: true, backgroundClockSize: 69, backgroundClockPositionX: 50, backgroundClockPositionY: 5.5 };
 const DEFAULT_BACKGROUND = { image: "", opacity: 18, zoom: 100, x: 50, y: 0, fit: "height", layoutVersion: 2 };
 const GAMEWITH_SCHEDULE_URL = "https://xn--bck3aza1a2if6kra4ee0hf.gamewith.jp/article/show/28687";
 const GRANBLUE_ICON_IDS = new Set(["home", "quest", "rescue", "raid", "party", "enhance", "evolve", "inventory", "storage", "gacha", "boss", "high-difficulty", "coop-create", "coop-search", "solo", "sage", "drops", "weapon", "character", "summon", "event", "fire", "water", "earth", "wind", "light", "dark", "arcarum", "sandbox"]);
@@ -359,6 +359,7 @@ function bindEvents() {
   $("#saveBulkEditButton").addEventListener("click", applyBulkEdit);
   $("#bulkDeleteButton").addEventListener("click", deleteSelectedBookmarks);
   $("#moreButton").addEventListener("click", () => $("#dataDialog").showModal());
+  $("#toggleBookmarkActionsButton").addEventListener("click", async () => { state.appearance.showActionButtons = !state.appearance.showActionButtons; await chrome.storage.local.set({ appearance: state.appearance }); applyAppearance(state.appearance); });
   $("#closeDataButton").addEventListener("click", () => $("#dataDialog").close());
   $("#exportButton").addEventListener("click", exportData);
   $("#exportCompleteButton").addEventListener("click", exportCompleteData);
@@ -967,6 +968,9 @@ function applyAppearance(settings = state.appearance) {
   document.body.classList.toggle("theme-colored-bookmarks", Boolean(settings.useThemeCards));
   document.body.classList.toggle("hide-home-buttons", !settings.showHomeButton);
   document.body.classList.toggle("hide-delete-buttons", !settings.showDeleteButton);
+  document.body.classList.toggle("hide-bookmark-actions", !settings.showActionButtons);
+  const actionsToggle = $("#toggleBookmarkActionsButton");
+  if (actionsToggle) { actionsToggle.setAttribute("aria-pressed", String(Boolean(settings.showActionButtons))); actionsToggle.textContent = settings.showActionButtons ? "操作欄を隠す" : "操作欄を表示"; }
   document.body.classList.toggle("hide-split-view-controls", settings.showSplitViewControls !== true);
   document.body.classList.toggle("hide-tab-rail", settings.showTabRail === false);
   document.body.classList.toggle("hide-background-clock", settings.showBackgroundClock === false);
