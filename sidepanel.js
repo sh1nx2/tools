@@ -1931,7 +1931,7 @@ async function changeBookmarkScale(change) {
   state.appearance.bookmarkScale = Math.min(125, Math.max(80, Number(state.appearance.bookmarkScale || 100) + change));
   await chrome.storage.local.set({ appearance: state.appearance });
   applyAppearance(state.appearance);
-  renderBookmarks();
+  render();
 }
 
 function updateIconGridSize() {

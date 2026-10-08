@@ -281,6 +281,8 @@ main { padding: 4px 18px 28px; }
 .icon-grid-controls { display: inline-flex; height: 24px; flex: 0 0 auto; align-items: center; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line)); border-radius: 7px; background: color-mix(in srgb, var(--surface) 54%, transparent); backdrop-filter: blur(6px); }
 .icon-grid-controls[hidden] { display: none; }
 .icon-grid-controls button { display: grid; width: 23px; height: 22px; padding: 0; place-items: center; border: 0; background: transparent; color: var(--accent); cursor: pointer; font-weight: 800; }
+.display-control-label { margin-left: 5px; color: var(--muted); font-size: 8px; font-weight: 750; white-space: nowrap; }
+.display-control-label + button { margin-left: 1px; }
 .icon-grid-controls button:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 13%, transparent); }
 .icon-grid-controls button:disabled { color: var(--muted); cursor: default; opacity: .35; }
 .section-actions, .bulk-toolbar { display: flex; align-items: center; gap: 4px; }
