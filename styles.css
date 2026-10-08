@@ -278,11 +278,11 @@ main { padding: 4px 18px 28px; }
 .section-heading { flex-wrap: wrap; row-gap: 6px; }
 .list-heading-group { display: flex; align-items: center; gap: 3px; min-width: 0; }
 .list-heading-group h2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.icon-grid-controls { display: inline-flex; height: 24px; flex: 0 0 auto; align-items: center; overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line)); border-radius: 7px; background: color-mix(in srgb, var(--surface) 54%, transparent); backdrop-filter: blur(6px); }
+.icon-grid-controls { display: inline-flex; height: 24px; flex: 0 0 auto; align-items: center; gap: 5px; }
 .icon-grid-controls[hidden] { display: none; }
 .icon-grid-controls button { display: grid; width: 23px; height: 22px; padding: 0; place-items: center; border: 0; background: transparent; color: var(--accent); cursor: pointer; font-weight: 800; }
 .display-control-label { margin-left: 5px; color: var(--muted); font-size: 8px; font-weight: 750; white-space: nowrap; }
-.display-control-group { display: inline-flex; align-items: center; gap: 1px; margin-left: 5px; padding-left: 4px; border-left: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+.display-control-group { display: inline-flex; align-items: center; gap: 1px; margin-left: 0; padding: 0 3px; border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line)); border-radius: 7px; background: color-mix(in srgb, var(--surface) 54%, transparent); backdrop-filter: blur(6px); }
 .display-control-group .display-control-label { margin-left: 0; margin-right: 2px; }
 .display-control-label + button { margin-left: 1px; }
 .icon-grid-controls button:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 13%, transparent); }
