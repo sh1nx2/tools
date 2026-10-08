@@ -2217,6 +2217,7 @@ function setBookmarkIcon(container, item) {
   container.replaceChildren();
   if (item.customIcon) {
     const image = document.createElement("img");
+    image.className = "custom-bookmark-icon";
     image.alt = "";
     image.src = item.customIcon;
     image.addEventListener("error", () => setStandardFavicon(container, item), { once: true });
