@@ -282,6 +282,8 @@ main { padding: 4px 18px 28px; }
 .icon-grid-controls[hidden] { display: none; }
 .icon-grid-controls button { display: grid; width: 23px; height: 22px; padding: 0; place-items: center; border: 0; background: transparent; color: var(--accent); cursor: pointer; font-weight: 800; }
 .display-control-label { margin-left: 5px; color: var(--muted); font-size: 8px; font-weight: 750; white-space: nowrap; }
+.display-control-group { display: inline-flex; align-items: center; gap: 1px; margin-left: 5px; padding-left: 4px; border-left: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+.display-control-group .display-control-label { margin-left: 0; margin-right: 2px; }
 .display-control-label + button { margin-left: 1px; }
 .icon-grid-controls button:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 13%, transparent); }
 .icon-grid-controls button:disabled { color: var(--muted); cursor: default; opacity: .35; }
@@ -300,6 +302,7 @@ main { padding: 4px 18px 28px; }
 .bulk-toolbar button:disabled { cursor: default; opacity: .45; }
 .text-button { border-radius: 7px; padding: 5px 7px; color: var(--muted); font-size: 12px; }
 .bookmark-list { display: grid; gap: 8px; }
+.bookmark-list.tile-view { zoom: var(--bookmark-scale, 1); }
 body[data-view-transition="fade"] .bookmark-list.view-transitioning { animation: view-fade .22s ease-out both; }
 body[data-view-transition="slide"] .bookmark-list.view-transitioning { animation: view-slide .28s cubic-bezier(.22, .72, .28, 1) both; }
 body[data-view-transition="scale"] .bookmark-list.view-transitioning { animation: view-scale .25s cubic-bezier(.2, .75, .3, 1) both; transform-origin: 50% 0; }
