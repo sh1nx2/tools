@@ -246,7 +246,7 @@
       const priorityRequired = priorityById.get(entry.materialId)?.required || 0;
       return `<button type="button" class="gb-widget-material" data-widget-material="${escapeHtml(entry.materialId)}">
         <span class="gb-widget-material-info">${materialIcon(materialDefinition(entry))}<strong>★ ${escapeHtml(materialDefinition(entry).name)}</strong></span>
-        <span class="gb-widget-needs"><b class="owned">${ownedValue}</b><b class="priority">${priorityRequired.toLocaleString("ja-JP")}</b><b>${entry.required.toLocaleString("ja-JP")}</b></span>
+        <span class="gb-widget-needs"><span class="gb-widget-owned"><button type="button" data-widget-step="-1" aria-label="所持数を1減らす">−</button><b class="owned">${ownedValue}</b><button type="button" data-widget-step="1" aria-label="所持数を1増やす">＋</button></span><b class="priority">${priorityRequired.toLocaleString("ja-JP")}</b><b>${entry.required.toLocaleString("ja-JP")}</b></span>
       </button>`;
     }).join("")}` : '<p class="gb-widget-empty">素材確認画面の☆から、ここに表示する素材を登録できます。</p>';
   }
@@ -509,6 +509,15 @@
       $gb("#gbWidgetDetails").hidden = !expanded;
     });
     $gb("#gbWidgetDetails").addEventListener("click", (event) => {
+      const step = event.target.closest("[data-widget-step]");
+      if (step) {
+        const materialId = step.closest("[data-widget-material]")?.dataset.widgetMaterial;
+        if (!materialId) return;
+        const current = Number(data.inventory[materialId]?.quantity) || 0;
+        data.inventory[materialId] = { ...(data.inventory[materialId] || {}), mode: "quantity", quantity: Math.max(0, current + Number(step.dataset.widgetStep)) };
+        saveData().then(render);
+        return;
+      }
       if (!event.target.closest("[data-widget-material]")) return;
       materialScope = "all";
       view = "materials";
