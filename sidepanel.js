@@ -1817,6 +1817,10 @@ function render() {
   const iconView = Boolean(selectedGenre?.viewMode === "icons" && !bulkMode);
   list.classList.toggle("icon-view", iconView);
   list.classList.toggle("tile-view", !iconView);
+  const bookmarkScale = Math.min(1.25, Math.max(0.8, Number(state.appearance.bookmarkScale || 100) / 100));
+  list.style.setProperty("--bookmark-scale", String(bookmarkScale));
+  list.style.setProperty("--app-icon-size", `${62 * bookmarkScale}px`);
+  list.style.setProperty("--app-icon-image-size", `${36 * bookmarkScale}px`);
   list.style.setProperty("--icon-columns", String(selectedGenre?.iconColumns || 4));
   const tileColumns = Math.min(6, Math.max(1, Number(state.appearance.tileColumns) || 2));
   list.style.setProperty("--tile-columns", String(tileColumns));
