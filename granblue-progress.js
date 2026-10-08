@@ -244,10 +244,10 @@
       const owned = status.owned ?? data.inventory[entry.materialId]?.quantity;
       const ownedValue = status.kind === "done" && owned === undefined ? "✓" : owned === undefined || owned === "" ? "—" : Number(owned).toLocaleString("ja-JP");
       const priorityRequired = priorityById.get(entry.materialId)?.required || 0;
-      return `<button type="button" class="gb-widget-material" data-widget-material="${escapeHtml(entry.materialId)}">
+      return `<div class="gb-widget-material" data-widget-material="${escapeHtml(entry.materialId)}" role="button" tabindex="0">
         <span class="gb-widget-material-info">${materialIcon(materialDefinition(entry))}<strong>★ ${escapeHtml(materialDefinition(entry).name)}</strong></span>
         <span class="gb-widget-needs"><span class="gb-widget-owned"><button type="button" data-widget-step="-1" aria-label="所持数を1減らす">−</button><b class="owned">${ownedValue}</b><button type="button" data-widget-step="1" aria-label="所持数を1増やす">＋</button></span><b class="priority">${priorityRequired.toLocaleString("ja-JP")}</b><b>${entry.required.toLocaleString("ja-JP")}</b></span>
-      </button>`;
+      </div>`;
     }).join("")}` : '<p class="gb-widget-empty">素材確認画面の☆から、ここに表示する素材を登録できます。</p>';
   }
 
