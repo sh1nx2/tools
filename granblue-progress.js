@@ -316,7 +316,7 @@
         <div class="gb-material-title">${materialIcon(material)}<button type="button" class="gb-material-favorite ${data.favoriteMaterials.includes(entry.materialId) ? "active" : ""}" data-material-favorite aria-label="${escapeHtml(material.name)}をウィジェットに表示" aria-pressed="${data.favoriteMaterials.includes(entry.materialId)}">★</button><strong>${escapeHtml(material.name)}</strong>${material.important ? "<b>重要</b>" : ""}<span>必要 ${entry.required}</span></div>
         <div class="gb-material-controls">
           <select data-material-mode aria-label="管理方法"><option value="unknown" ${mode === "unknown" ? "selected" : ""}>未確認</option><option value="quantity" ${mode === "quantity" ? "selected" : ""}>数量管理</option><option value="check" ${mode === "check" ? "selected" : ""}>達成チェック</option></select>
-          ${mode === "quantity" ? `<div class="gb-quantity"><button type="button" data-quantity-step="-1">−</button><input data-material-quantity type="number" min="0" value="${inventory.quantity ?? ""}" placeholder="未確認"><button type="button" data-quantity-step="1">＋</button></div>` : ""}
+          <div class="gb-quantity" aria-label="${escapeHtml(material.name)}の所持数"><button type="button" data-quantity-step="-1" title="所持数を1減らす">−</button><input data-material-quantity type="number" min="0" value="${inventory.quantity ?? ""}" placeholder="未確認"><button type="button" data-quantity-step="1" title="所持数を1増やす">＋</button></div>
           ${mode === "check" ? `<label class="gb-enough-check"><input data-material-enough type="checkbox" ${allChecked ? "checked" : ""}>必要数以上持っている</label>` : ""}
         </div>
         <small class="gb-material-status">${statusText}</small>
